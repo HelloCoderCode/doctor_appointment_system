@@ -1,0 +1,729 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home — Best Doctors in New Delhi{% endblock %}
+
+{% block styles %}
+<style>
+/* ══════════════════════════════════════════════════════════
+   TOKENS
+══════════════════════════════════════════════════════════ */
+:root {
+  --teal    : #0b6e6e;
+  --teal2   : #0d9191;
+  --teal-dk : #064848;
+  --saffron : #e8600a;
+  --saffron2: #ff8c38;
+  --ink     : #0f1f1f;
+  --muted   : #6b8585;
+  --cream   : #f4f9f8;
+  --white   : #ffffff;
+  --border  : #d9eaea;
+  --card    : #ffffff;
+  --ease    : cubic-bezier(.4,0,.2,1);
+}
+
+/* ══════════════════════════════════════════════════════════
+   RESET — no side scroll
+══════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  overflow-x: hidden !important;
+  max-width: 100vw;
+}
+body {
+  background: var(--cream);
+  color: var(--ink);
+  font-family: 'DM Sans', sans-serif;
+}
+a, a:hover, a:focus, a:visited {
+  text-decoration: none !important;
+  color: inherit;
+  outline: none;
+}
+ul { list-style: none; }
+img { display: block; max-width: 100%; }
+
+/* ══════════════════════════════════════════════════════════
+   HERO SLIDER — fixed width, no overflow, NO parallax scroll
+══════════════════════════════════════════════════════════ */
+.welcome-area {
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+.welcome-slides { overflow: hidden; }
+
+.welcome-welcome-slide {
+  width: 100%;
+  min-height: 92vh;
+  display: flex;
+  align-items: center;
+  background-size: cover !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+  background-attachment: scroll !important; /* never fixed — avoids mobile issues */
+  position: relative;
+}
+
+/* ── KILL JARALLAX completely ──────────────────────────── */
+/* jarallax injects a <img class="jarallax-img"> that moves on scroll */
+.welcome-welcome-slide > .jarallax-img,
+.jarallax > .jarallax-img {
+  position: absolute !important;
+  top: 0 !important; left: 0 !important;
+  width: 100% !important; height: 100% !important;
+  object-fit: cover !important;
+  transform: none !important;       /* ← stops JS from moving it */
+  will-change: auto !important;
+  transition: none !important;
+  z-index: 0 !important;
+}
+/* make sure content sits above the img */
+.welcome-welcome-slide > * { position: relative; z-index: 2; }
+.welcome-welcome-slide::before,
+.welcome-welcome-slide::after { z-index: 1; }
+
+/* dark overlay */
+.welcome-welcome-slide::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(6,30,30,.88) 0%,
+    rgba(11,110,110,.55) 55%,
+    rgba(232,96,10,.18) 100%
+  );
+  z-index: 1;
+}
+
+/* decorative glow — contained, no overflow */
+.welcome-welcome-slide::after {
+  content: '';
+  position: absolute; bottom: -80px; right: -80px;
+  width: 340px; height: 340px;
+  background: radial-gradient(circle, rgba(232,96,10,.16) 0%, transparent 70%);
+  border-radius: 50%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* hero content */
+.hero-content {
+  position: relative; z-index: 2;
+  text-align: center;
+  padding: 60px 20px 70px;
+  width: 100%;
+}
+
+.hero-chip {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,.14); color: #fff;
+  border: 1px solid rgba(255,255,255,.30);
+  font-size: 11px; font-weight: 700; letter-spacing: .09em;
+  text-transform: uppercase; padding: 7px 18px; border-radius: 50px;
+  margin-bottom: 24px; backdrop-filter: blur(8px);
+}
+.hero-chip .fa { font-size: 11px; }
+
+.hero-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(32px, 6vw, 68px);
+  font-weight: 700; color: #fff; line-height: 1.12;
+  margin-bottom: 20px;
+  text-shadow: 0 4px 28px rgba(0,0,0,.35);
+}
+.hero-title span { color: var(--saffron2); }
+
+.hero-sub {
+  font-size: clamp(14px, 2vw, 17px);
+  color: rgba(255,255,255,.82);
+  max-width: 580px; margin: 0 auto 40px;
+  line-height: 1.80;
+}
+
+/* ── SEARCH CARD ─────────────────────────────────────── */
+.search-card {
+  background: rgba(255,255,255,.97);
+  border-radius: 20px;
+  padding: 24px 28px;
+  max-width: 840px;
+  margin: 0 auto;
+  box-shadow: 0 28px 64px rgba(0,0,0,.24);
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 16px;
+  align-items: end;
+}
+.sc-field label {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 700;
+  color: var(--teal); text-transform: uppercase;
+  letter-spacing: .06em; margin-bottom: 7px;
+}
+.sc-field input,
+.sc-field select {
+  width: 100%; padding: 13px 16px;
+  border: 1.5px solid var(--border); border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; color: var(--ink);
+  background: var(--cream);
+  outline: none; transition: border-color .2s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.sc-field input:focus,
+.sc-field select:focus {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(11,110,110,.10);
+  background: #fff;
+}
+.search-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 14px 28px; border-radius: 12px;
+  background: var(--saffron); color: #fff !important;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; font-weight: 700;
+  border: none; cursor: pointer; white-space: nowrap;
+  transition: background .22s, transform .22s;
+  text-decoration: none !important;
+  box-shadow: 0 4px 16px rgba(232,96,10,.30);
+}
+.search-btn:hover { background: var(--saffron2); transform: translateY(-2px); }
+
+/* ══════════════════════════════════════════════════════════
+   STATS STRIP
+══════════════════════════════════════════════════════════ */
+.stats-strip {
+  background: var(--teal);
+  padding: 18px 0;
+  width: 100%;
+}
+.stats-inner {
+  max-width: 1200px; margin: 0 auto; padding: 0 24px;
+  display: flex; justify-content: space-around;
+  flex-wrap: wrap; gap: 20px;
+}
+.stat-item { text-align: center; color: #fff; }
+.stat-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 36px; font-weight: 700; line-height: 1;
+  color: var(--saffron2);
+}
+.stat-lbl { font-size: 12px; opacity: .78; margin-top: 4px; letter-spacing: .04em; }
+
+/* ══════════════════════════════════════════════════════════
+   WHY CHOOSE US
+══════════════════════════════════════════════════════════ */
+.why-strip {
+  background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dk) 100%);
+  padding: 50px 24px;
+  position: relative; overflow: hidden; width: 100%;
+}
+.why-strip::before {
+  content: ''; position: absolute; top: -80px; right: -80px;
+  width: 320px; height: 320px;
+  background: rgba(232,96,10,.10); border-radius: 50%;
+  pointer-events: none;
+}
+.why-wrap {
+  max-width: 1200px; margin: 0 auto;
+  position: relative; z-index: 1;
+}
+.why-heading {
+  text-align: center; margin-bottom: 32px;
+}
+.why-heading h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(24px, 4vw, 40px);
+  font-weight: 700; color: #fff; margin-bottom: 8px;
+}
+.why-heading p { font-size: 14px; color: rgba(255,255,255,.68); }
+
+.why-grid {
+  display: grid; grid-template-columns: repeat(4,1fr);
+  gap: 20px;
+}
+.why-item { text-align: center; color: #fff; }
+.why-icon {
+  width: 56px; height: 56px; border-radius: 16px;
+  background: rgba(255,255,255,.12);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; margin: 0 auto 14px;
+  border: 1px solid rgba(255,255,255,.18);
+  transition: background .25s;
+}
+.why-item:hover .why-icon { background: rgba(255,255,255,.22); }
+.why-item h4 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 18px; font-weight: 700; margin-bottom: 8px;
+}
+.why-item p { font-size: 13px; color: rgba(255,255,255,.68); line-height: 1.65; }
+
+/* ══════════════════════════════════════════════════════════
+   DOCTORS SECTION
+══════════════════════════════════════════════════════════ */
+.doctors-section { padding: 52px 24px; width: 100%; }
+.doctors-wrap { max-width: 1200px; margin: 0 auto; }
+
+.section-head {
+  display: flex; align-items: flex-end;
+  justify-content: space-between; flex-wrap: wrap;
+  gap: 16px; margin-bottom: 32px;
+}
+.section-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(11,110,110,.09); color: var(--teal);
+  font-size: 11px; font-weight: 700; letter-spacing: .07em;
+  text-transform: uppercase; padding: 5px 14px;
+  border-radius: 50px; border: 1px solid rgba(11,110,110,.18);
+  margin-bottom: 12px;
+}
+.sec-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(28px, 4vw, 48px);
+  font-weight: 700; color: var(--ink); line-height: 1.18;
+}
+.sec-title em { color: var(--teal); font-style: normal; }
+.sec-sub {
+  font-size: 15px; color: var(--muted);
+  max-width: 380px; line-height: 1.78;
+}
+
+/* ── DOCTOR CARD ──────────────────────────────────────── */
+.doctors-grid {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 20px;
+}
+.doctor-card {
+  background: var(--card);
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  transition: transform .28s var(--ease), box-shadow .28s var(--ease);
+}
+.doctor-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 52px rgba(11,110,110,.14);
+}
+.dc-photo {
+  position: relative; overflow: hidden;
+  height: 220px;
+  background: linear-gradient(135deg,#c8e6e4,#a0d4d0);
+  display: flex; align-items: center; justify-content: center;
+}
+.dc-photo img {
+  width: 100%; height: 100%; object-fit: contain;
+  transition: transform .4s var(--ease);
+  background: #e9f3f2;
+}
+.doctor-card:hover .dc-photo img { transform: scale(1.02); }
+
+.dc-avail {
+  position: absolute; top: 14px; left: 14px;
+  background: #22c55e; color: #fff;
+  font-size: 11px; font-weight: 700;
+  padding: 4px 11px; border-radius: 50px;
+  display: flex; align-items: center; gap: 5px;
+}
+.dc-avail::before {
+  content: ''; width: 6px; height: 6px;
+  background: #fff; border-radius: 50%;
+  animation: pulse 1.4s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:.4} }
+
+.dc-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(transparent 40%, rgba(6,30,30,.82));
+  opacity: 0; transition: opacity .28s var(--ease);
+  display: flex; align-items: flex-end; justify-content: center;
+  padding-bottom: 18px; gap: 10px;
+}
+.doctor-card:hover .dc-overlay { opacity: 1; }
+.dc-overlay a {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.28);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff !important; font-size: 13px;
+  transition: background .2s; text-decoration: none !important;
+}
+.dc-overlay a:hover { background: var(--saffron); }
+
+.dc-body { padding: 16px 18px 18px; }
+.dc-dept {
+  font-size: 11px; font-weight: 700; color: var(--saffron);
+  text-transform: uppercase; letter-spacing: .07em; margin-bottom: 4px;
+}
+.dc-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px; font-weight: 700; color: var(--ink);
+  margin-bottom: 3px; line-height: 1.2;
+}
+.dc-qual { font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+
+.dc-meta {
+  display: flex; flex-direction: column; gap: 6px;
+  font-size: 12px; color: var(--muted); margin-bottom: 14px;
+}
+.dc-meta span {
+  display: flex; align-items: center; gap: 7px; line-height: 1;
+}
+.dc-meta .fa {
+  color: var(--teal); font-size: 12px;
+  width: 14px; height: 14px; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+
+.dc-appt-btn {
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  width: 100%; padding: 10px 0;
+  background: var(--teal); color: #fff !important;
+  border-radius: 50px; font-size: 13px; font-weight: 700;
+  transition: background .22s; text-decoration: none !important;
+}
+.dc-appt-btn:hover { background: var(--teal2); }
+.dc-appt-btn-muted { background: #b0c8c8 !important; cursor: default; }
+.dc-login-hint {
+  text-align: center; font-size: 13px; color: var(--muted);
+  padding: 10px 0; display: flex; align-items: center;
+  justify-content: center; gap: 6px;
+}
+.dc-login-hint a { color: var(--teal) !important; font-weight: 700; text-decoration: none !important; }
+.dc-login-hint .fa { font-size: 12px; color: var(--muted); }
+
+/* ── NO DOCTORS STATE ─────────────────────────────────── */
+.no-doctors {
+  text-align: center; padding: 60px 20px;
+  grid-column: 1/-1;
+}
+.no-doctors .fa { font-size: 48px; color: var(--border); margin-bottom: 16px; }
+.no-doctors p { font-size: 16px; color: var(--muted); }
+
+/* ── PAGINATION ───────────────────────────────────────── */
+.mc-pagination {
+  display: flex; justify-content: center; align-items: center;
+  gap: 8px; margin-top: 32px; flex-wrap: wrap;
+}
+.mc-pagination a,
+.mc-pagination .current-page {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 5px;
+  min-width: 42px; height: 42px; padding: 0 16px;
+  border-radius: 50px; font-size: 13px; font-weight: 700;
+  border: 1.5px solid var(--border);
+  background: #fff; color: var(--teal) !important;
+  transition: background .2s, border-color .2s;
+  text-decoration: none !important;
+}
+.mc-pagination a:hover {
+  background: var(--teal); color: #fff !important;
+  border-color: var(--teal);
+}
+.mc-pagination .current-page {
+  background: var(--teal); color: #fff !important;
+  border-color: var(--teal);
+}
+
+/* ══════════════════════════════════════════════════════════
+   RESPONSIVE — every breakpoint
+══════════════════════════════════════════════════════════ */
+@media (max-width: 1100px) {
+  .doctors-grid { grid-template-columns: repeat(2,1fr); }
+}
+@media (max-width: 900px) {
+  .search-card { grid-template-columns: 1fr 1fr; }
+  .search-card .search-btn { grid-column: 1/-1; }
+  .why-grid { grid-template-columns: repeat(2,1fr); gap: 16px; }
+  .section-head { flex-direction: column; align-items: flex-start; }
+  .sec-sub { max-width: 100%; }
+}
+@media (max-width: 640px) {
+  .welcome-welcome-slide { min-height: 100svh; }
+  .hero-content { padding: 48px 14px 56px; }
+  .hero-sub { margin-bottom: 24px; }
+  .search-card { grid-template-columns: 1fr; padding: 16px 14px; gap: 10px; }
+  .doctors-grid { grid-template-columns: 1fr; gap: 14px; }
+  .why-grid { grid-template-columns: 1fr 1fr; gap: 14px; }
+  .why-strip { padding: 40px 16px; }
+  .why-heading { margin-bottom: 24px; }
+  .doctors-section { padding: 36px 14px; }
+  .stats-inner { gap: 12px; }
+  .stat-num { font-size: 26px; }
+}
+@media (max-width: 420px) {
+  .hero-title { font-size: 28px; }
+  .hero-chip { font-size: 10px; padding: 5px 12px; }
+  .why-grid { grid-template-columns: 1fr; }
+  .why-icon { width: 50px; height: 50px; font-size: 20px; }
+  .stats-inner { justify-content: space-around; }
+}
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<!-- ═══════════════════════════════════════════════════════
+     HERO — single static image, NO carousel, NO auto-scroll
+═══════════════════════════════════════════════════════ -->
+<section class="welcome-area">
+  <div class="welcome-welcome-slide"
+       style="background-image: url('{% static 'img/bg-img/1.jpg' %}'); background-size:cover; background-position:center; background-repeat:no-repeat;">
+    <div class="container">
+      <div class="row">
+        <div class="col-12">
+          <div class="hero-content">
+            <div class="hero-chip">
+              <i class="fa fa-map-marker"></i>&nbsp; New Delhi's Premier Healthcare
+            </div>
+            <h1 class="hero-title">
+              India's Best Doctors,<br>
+              <span>Right Here in Delhi</span>
+            </h1>
+            <p class="hero-sub">
+              Find top-rated specialists across Cardiology, Neurology,
+              Orthopaedics &amp; more — book your appointment in seconds.
+            </p>
+            <form method="get" action="{% url 'appointment:search' %}">
+              <div class="search-card">
+                <div class="sc-field">
+                  <label><i class="fa fa-map-marker"></i>&nbsp; Location</label>
+                  <input type="text" name="location"
+                         placeholder="e.g. Connaught Place, Saket…">
+                </div>
+                <div class="sc-field">
+                  <label><i class="fa fa-stethoscope"></i>&nbsp; Speciality</label>
+                  <select name="department">
+                    <option value="" disabled selected>Select Speciality</option>
+                    <option>Cardiology</option>
+                    <option>Dentistry</option>
+                    <option>ENT Specialists</option>
+                    <option>Orthopaedics</option>
+                    <option>Neurology</option>
+                    <option>Pathology &amp; Blood Tests</option>
+                    <option>Ophthalmology</option>
+                    <option>Physiotherapy</option>
+                    <option>Gynaecology</option>
+                    <option>Dermatology</option>
+                  </select>
+                </div>
+                <button type="submit" class="search-btn">
+                  <i class="fa fa-search"></i> Find Doctor
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     STATS STRIP
+═══════════════════════════════════════════════════════ -->
+<div class="stats-strip">
+  <div class="stats-inner">
+    <div class="stat-item">
+      <div class="stat-num">200+</div>
+      <div class="stat-lbl">Specialist Doctors</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">50K+</div>
+      <div class="stat-lbl">Happy Patients</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">30+</div>
+      <div class="stat-lbl">Departments</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">24/7</div>
+      <div class="stat-lbl">Emergency Care</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">25+</div>
+      <div class="stat-lbl">Years in Delhi</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     WHY CHOOSE US
+═══════════════════════════════════════════════════════ -->
+<div class="why-strip">
+  <div class="why-wrap">
+    <div class="why-heading">
+      <h2>Why Patients Choose <span style="color:var(--saffron2);">MediCare+</span></h2>
+      <p>Trusted healthcare with the warmth of a family doctor and the expertise of a specialist.</p>
+    </div>
+    <div class="why-grid">
+      <div class="why-item">
+        <div class="why-icon"><i class="fa fa-user-md"></i></div>
+        <h4>AIIMS-Trained Specialists</h4>
+        <p>Doctors trained at India's most prestigious medical institutions, right in your city.</p>
+      </div>
+      <div class="why-item">
+        <div class="why-icon"><i class="fa fa-clock-o"></i></div>
+        <h4>Same-Day Appointments</h4>
+        <p>Book and confirm your slot in minutes — skip the long queues entirely.</p>
+      </div>
+      <div class="why-item">
+        <div class="why-icon"><i class="fa fa-shield"></i></div>
+        <h4>NABH Accredited</h4>
+        <p>All partner hospitals meet rigorous national quality and safety standards.</p>
+      </div>
+      <div class="why-item">
+        <div class="why-icon"><i class="fa fa-inr"></i></div>
+        <h4>Transparent Pricing</h4>
+        <p>No hidden fees. Know your consultation cost before you ever walk through the door.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     DOCTORS LISTING
+═══════════════════════════════════════════════════════ -->
+<section class="doctors-section">
+  <div class="doctors-wrap">
+
+    <div class="section-head">
+      <div>
+        <div class="section-chip">
+          <i class="fa fa-stethoscope"></i> Our Specialists
+        </div>
+        <h2 class="sec-title">Available <em>Doctors</em> in Delhi</h2>
+      </div>
+      <p class="sec-sub">
+        Browse verified specialists across Connaught Place, Saket,
+        Rohini, Dwarka &amp; more — all in one place.
+      </p>
+    </div>
+
+    <div class="doctors-grid">
+      {% for apt in home %}
+      <div class="doctor-card">
+
+        <div class="dc-photo">
+          <img src="{{ apt.image.url }}" alt="Dr. {{ apt.full_name }}">
+          <div class="dc-avail">Available</div>
+          <div class="dc-overlay">
+            <a href="#" title="LinkedIn"><i class="fa fa-linkedin"></i></a>
+            <a href="#" title="Email"><i class="fa fa-envelope"></i></a>
+            <a href="#" title="Share"><i class="fa fa-share-alt"></i></a>
+          </div>
+        </div>
+
+        <div class="dc-body">
+          <div class="dc-dept">{{ apt.department }}</div>
+          <div class="dc-name">Dr. {{ apt.full_name }}</div>
+          <div class="dc-qual">{{ apt.qualification_name }} &mdash; {{ apt.institute_name }}</div>
+
+          <div class="dc-meta">
+            <span>
+              <i class="fa fa-clock-o"></i>
+              {{ apt.start_time }} &ndash; {{ apt.end_time }}
+            </span>
+            <span>
+              <i class="fa fa-hospital-o"></i>
+              {{ apt.hospital_name }}
+            </span>
+            <span>
+              <i class="fa fa-map-marker"></i>
+              {{ apt.location }}, New Delhi
+            </span>
+          </div>
+
+          {% if request.user.is_authenticated and request.user.role == 'patient' %}
+            <a href="{% url 'appointment:take-appointment' apt.id %}" class="dc-appt-btn">
+              <i class="fa fa-calendar-check-o"></i> Book Appointment
+            </a>
+          {% elif request.user.is_authenticated and request.user.role == 'doctor' %}
+            <div class="dc-appt-btn dc-appt-btn-muted">
+              <i class="fa fa-info-circle"></i> Colleague Profile
+            </div>
+          {% else %}
+            <div class="dc-login-hint">
+              <i class="fa fa-lock"></i>
+              <a href="{% url 'accounts:login' %}">Login as Patient</a>
+              to book
+            </div>
+          {% endif %}
+        </div>
+      </div>
+      {% empty %}
+      <div class="no-doctors">
+        <div><i class="fa fa-user-md"></i></div>
+        <p>No doctors available at the moment. Please check back soon.</p>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    <div class="mc-pagination">
+      {% if page_obj.has_previous %}
+        <a href="?page=1"><i class="fa fa-angle-double-left"></i> First</a>
+        <a href="?page={{ page_obj.previous_page_number }}"><i class="fa fa-angle-left"></i> Prev</a>
+      {% endif %}
+
+      <span class="current-page">
+        {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+      </span>
+
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">Next <i class="fa fa-angle-right"></i></a>
+        <a href="?page={{ page_obj.paginator.num_pages }}">Last <i class="fa fa-angle-double-right"></i></a>
+      {% endif %}
+    </div>
+
+  </div>
+</section>
+
+{% endblock %}
+
+{% block javascripts %}
+<script>
+(function () {
+  /* 1. Destroy any owl-carousel on the hero so it never auto-slides */
+  function killOwl() {
+    if (window.jQuery) {
+      try {
+        var $hero = jQuery('.welcome-area .owl-carousel');
+        if ($hero.length && $hero.data('owl.carousel')) {
+          $hero.trigger('destroy.owl.carousel');
+        }
+      } catch(e) {}
+    }
+  }
+
+  /* 2. Lock hero background — prevent any JS moving it */
+  function lockHero() {
+    var slide = document.querySelector('.welcome-welcome-slide');
+    if (!slide) return;
+    slide.style.backgroundAttachment = 'scroll';
+    slide.style.backgroundSize      = 'cover';
+    slide.style.backgroundPosition  = 'center center';
+    /* kill any injected jarallax-img transform */
+    var jImg = slide.querySelector('.jarallax-img');
+    if (jImg) {
+      jImg.style.cssText =
+        'position:absolute!important;top:0!important;left:0!important;' +
+        'width:100%!important;height:100%!important;' +
+        'object-fit:cover!important;transform:none!important;' +
+        'will-change:auto!important;transition:none!important;z-index:0!important;';
+    }
+    /* Destroy jarallax plugin if present */
+    if (window.jarallax) { try { window.jarallax(slide, 'destroy'); } catch(e){} }
+  }
+
+  if (document.readyState === 'complete') { killOwl(); lockHero(); }
+  else { window.addEventListener('load', function(){ killOwl(); lockHero(); }); }
+  setTimeout(function(){ killOwl(); lockHero(); }, 400);
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,707 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Patient List — MediCare Plus{% endblock %}
+
+{% block styles %}
+<style>
+/* ══════════════════════════════════════════════════════════
+   TOKENS
+══════════════════════════════════════════════════════════ */
+:root {
+  --teal    : #0b6e6e;
+  --teal2   : #0d9191;
+  --teal-dk : #064848;
+  --saffron : #e8600a;
+  --saffron2: #ff8c38;
+  --ink     : #0f1f1f;
+  --muted   : #6b8585;
+  --cream   : #f4f9f8;
+  --white   : #ffffff;
+  --border  : #d9eaea;
+  --red     : #d94040;
+  --ease    : cubic-bezier(.4,0,.2,1);
+}
+
+/* ── PAGE ─────────────────────────────────────────────── */
+.patient-list-page {
+  min-height: 100vh;
+  background: var(--cream);
+  padding: 48px 16px 72px;
+  font-family: 'DM Sans', sans-serif;
+}
+.patient-list-wrap { max-width: 1100px; margin: 0 auto; }
+
+/* ── PAGE HEADER ──────────────────────────────────────── */
+.pl-head {
+  display: flex; align-items: flex-end;
+  justify-content: space-between; flex-wrap: wrap;
+  gap: 16px; margin-bottom: 28px;
+}
+.pl-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(11,110,110,.09); color: var(--teal);
+  font-size: 11px; font-weight: 700; letter-spacing: .07em;
+  text-transform: uppercase; padding: 5px 14px;
+  border-radius: 50px; border: 1px solid rgba(11,110,110,.18);
+  margin-bottom: 10px;
+}
+.pl-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(24px, 4vw, 38px);
+  font-weight: 700; color: var(--ink); line-height: 1.18; margin-bottom: 4px;
+}
+.pl-title span { color: var(--teal); }
+.pl-sub { font-size: 14px; color: var(--muted); }
+
+.btn-pl-back {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 11px 22px; border-radius: 50px;
+  background: transparent; color: var(--teal) !important;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 700;
+  border: 1.5px solid var(--teal);
+  text-decoration: none !important; white-space: nowrap;
+  transition: background .22s, color .22s;
+}
+.btn-pl-back:hover { background: var(--teal); color: #fff !important; }
+
+/* ── STATS PILLS ──────────────────────────────────────── */
+.pl-stats {
+  display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 28px;
+}
+.pl-stat {
+  display: flex; align-items: center; gap: 12px;
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 14px; padding: 14px 18px;
+  flex: 1; min-width: 130px;
+  box-shadow: 0 2px 10px rgba(11,110,110,.06);
+}
+.pl-stat-icon {
+  width: 38px; height: 38px; border-radius: 10px;
+  background: rgba(11,110,110,.09);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: var(--teal); flex-shrink: 0;
+}
+.pl-stat-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px; font-weight: 700; color: var(--ink); line-height: 1;
+}
+.pl-stat-lbl { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* ── SEARCH BAR ───────────────────────────────────────── */
+.pl-search-bar {
+  display: flex; gap: 10px; align-items: center;
+  margin-bottom: 22px; flex-wrap: wrap;
+}
+.pl-search-input-wrap {
+  flex: 1; position: relative; min-width: 200px;
+}
+.pl-search-input-wrap .fa {
+  position: absolute; left: 14px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted); font-size: 13px; pointer-events: none;
+}
+.pl-search-input {
+  width: 100%; padding: 11px 16px 11px 38px;
+  border: 1.5px solid var(--border); border-radius: 50px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; color: var(--ink);
+  background: var(--white); outline: none;
+  transition: border-color .22s, box-shadow .22s;
+  box-sizing: border-box;
+}
+.pl-search-input:focus {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(11,110,110,.10);
+}
+.pl-search-input::placeholder { color: #a8c4c4; }
+
+/* ── TABLE CARD ───────────────────────────────────────── */
+.pl-table-card {
+  background: var(--white);
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 24px rgba(11,110,110,.08);
+  overflow: hidden;
+}
+.pl-table-wrap { overflow-x: auto; }
+.pl-table { min-width: 960px; }
+.pl-table th:last-child,
+.pl-table td:last-child { white-space: nowrap; }
+
+/* ── DESKTOP TABLE ────────────────────────────────────── */
+.pl-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.pl-table thead tr {
+  background: linear-gradient(90deg, var(--teal-dk) 0%, var(--teal) 100%);
+}
+.pl-table thead th {
+  padding: 14px 18px;
+  text-align: left;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px; font-weight: 700;
+  color: rgba(255,255,255,.85);
+  text-transform: uppercase; letter-spacing: .07em;
+  white-space: nowrap; border: none;
+}
+.pl-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background .18s;
+}
+.pl-table tbody tr:last-child { border-bottom: none; }
+.pl-table tbody tr:hover { background: rgba(11,110,110,.03); }
+
+.pl-table td {
+  padding: 14px 18px; color: var(--ink);
+  vertical-align: middle; border: none;
+}
+
+/* name cell */
+.pl-name-cell {
+  display: flex; align-items: center; gap: 10px;
+}
+.pl-avatar {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--teal), var(--teal2));
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 14px; font-weight: 700;
+  flex-shrink: 0; text-transform: uppercase;
+}
+.pl-patient-name { font-weight: 600; color: var(--ink); }
+.pl-patient-id { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+/* phone cell */
+.pl-phone {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; color: var(--muted);
+}
+.pl-phone .fa { color: var(--teal); font-size: 12px; }
+
+/* message cell */
+.pl-message {
+  max-width: 220px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font-size: 13px; color: var(--muted);
+  font-style: italic;
+}
+.pl-message-empty { color: var(--border); font-style: normal; font-size: 12px; }
+
+/* date cell */
+.pl-date {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; color: var(--muted); white-space: nowrap;
+}
+.pl-date .fa { color: var(--teal); font-size: 12px; }
+
+/* status badge */
+.pl-status {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 50px;
+  font-size: 11px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .05em; border: 1px solid transparent;
+}
+.pl-status.applied { background: rgba(11,110,110,.08); color: var(--teal); border-color: rgba(11,110,110,.18); }
+.pl-status.rejected { background: rgba(217,64,64,.08); color: var(--red); border-color: rgba(217,64,64,.22); }
+.pl-status.completed { background: rgba(232,96,10,.10); color: var(--saffron); border-color: rgba(232,96,10,.25); }
+.pl-status.no_show { background: rgba(15,31,31,.08); color: var(--ink); border-color: rgba(15,31,31,.18); }
+
+/* action cell */
+.pl-actions { display: flex; gap: 7px; align-items: center; }
+.btn-pl-delete {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 7px 14px; border-radius: 50px;
+  background: rgba(217,64,64,.08); color: var(--red) !important;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px; font-weight: 700;
+  border: 1px solid rgba(217,64,64,.22);
+  text-decoration: none !important;
+  transition: background .22s, color .22s;
+  white-space: nowrap;
+}
+.btn-pl-delete:hover {
+  background: var(--red); color: #fff !important;
+  border-color: var(--red);
+}
+.btn-pl-action {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 7px 14px; border-radius: 50px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px; font-weight: 700;
+  text-decoration: none !important;
+  transition: background .22s, color .22s;
+  white-space: nowrap;
+}
+.btn-pl-reject { background: rgba(217,64,64,.08); color: var(--red) !important; border: 1px solid rgba(217,64,64,.22); }
+.btn-pl-reject:hover { background: var(--red); color: #fff !important; border-color: var(--red); }
+.btn-pl-complete { background: rgba(11,110,110,.08); color: var(--teal) !important; border: 1px solid rgba(11,110,110,.20); }
+.btn-pl-complete:hover { background: var(--teal); color: #fff !important; }
+.btn-pl-noshow { background: rgba(15,31,31,.06); color: var(--ink) !important; border: 1px solid rgba(15,31,31,.18); }
+.btn-pl-noshow:hover { background: var(--ink); color: #fff !important; }
+
+/* ── MOBILE CARDS (shown < 700px) ─────────────────────── */
+.pl-mobile-cards { display: none; }
+.pl-mobile-card {
+  padding: 18px 20px;
+  border-bottom: 1px solid var(--border);
+}
+.pl-mobile-card:last-child { border-bottom: none; }
+.pl-mobile-card-head {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 12px;
+}
+.pl-mobile-avatar {
+  width: 44px; height: 44px; border-radius: 12px;
+  background: linear-gradient(135deg, var(--teal), var(--teal2));
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 18px; font-weight: 700;
+  flex-shrink: 0; text-transform: uppercase;
+}
+.pl-mobile-name { font-weight: 700; font-size: 16px; color: var(--ink); }
+.pl-mobile-id { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.pl-mobile-meta {
+  display: flex; flex-direction: column; gap: 7px; margin-bottom: 14px;
+}
+.pl-mobile-meta-row {
+  display: flex; align-items: flex-start; gap: 8px;
+  font-size: 13px; color: var(--muted);
+}
+.pl-mobile-meta-row .fa {
+  color: var(--teal); font-size: 12px; flex-shrink: 0;
+  width: 14px; margin-top: 2px;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.pl-mobile-actions { display: flex; gap: 8px; }
+.btn-pl-delete-mobile {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 10px 16px; border-radius: 50px;
+  background: rgba(217,64,64,.08); color: var(--red) !important;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 700;
+  border: 1px solid rgba(217,64,64,.22);
+  text-decoration: none !important;
+  transition: background .22s, color .22s;
+}
+.btn-pl-delete-mobile:hover { background: var(--red); color: #fff !important; border-color: var(--red); }
+.btn-pl-action-mobile {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 10px 16px; border-radius: 50px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 700;
+  text-decoration: none !important;
+  transition: background .22s, color .22s;
+}
+.btn-pl-reject-mobile { background: rgba(217,64,64,.08); color: var(--red) !important; border: 1px solid rgba(217,64,64,.22); }
+.btn-pl-reject-mobile:hover { background: var(--red); color: #fff !important; border-color: var(--red); }
+.btn-pl-complete-mobile { background: rgba(11,110,110,.08); color: var(--teal) !important; border: 1px solid rgba(11,110,110,.20); }
+.btn-pl-complete-mobile:hover { background: var(--teal); color: #fff !important; }
+.btn-pl-noshow-mobile { background: rgba(15,31,31,.06); color: var(--ink) !important; border: 1px solid rgba(15,31,31,.18); }
+.btn-pl-noshow-mobile:hover { background: var(--ink); color: #fff !important; }
+
+/* status filter buttons */
+.pl-filters {
+  display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px;
+}
+.pl-filter-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: 50px;
+  font-size: 12px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .05em; border: 1.5px solid var(--border);
+  background: var(--white); color: var(--muted);
+  cursor: pointer;
+  transition: background .2s, color .2s, border-color .2s;
+}
+.pl-filter-btn.active {
+  background: var(--teal); color: #fff; border-color: var(--teal);
+}
+
+/* ── EMPTY STATE ──────────────────────────────────────── */
+.pl-empty {
+  text-align: center; padding: 64px 24px;
+}
+.pl-empty-icon {
+  width: 72px; height: 72px; border-radius: 20px;
+  background: rgba(11,110,110,.08);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 32px; color: var(--teal); margin: 0 auto 18px;
+}
+.pl-empty h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px; font-weight: 700; color: var(--ink); margin-bottom: 8px;
+}
+.pl-empty p { font-size: 14px; color: var(--muted); max-width: 340px; margin: 0 auto; line-height: 1.7; }
+
+/* ── PAGINATION ───────────────────────────────────────── */
+.pl-pagination {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 18px;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap; gap: 10px;
+}
+.pl-pagination-info { font-size: 13px; color: var(--muted); }
+.pl-pagination-info strong { color: var(--ink); }
+
+/* ══════════════════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════════════════ */
+@media (max-width: 700px) {
+  /* hide table, show cards */
+  .pl-table-wrap { display: none; }
+  .pl-mobile-cards { display: block; }
+  .pl-head { flex-direction: column; align-items: flex-start; }
+  .btn-pl-back { width: 100%; justify-content: center; }
+  .pl-stats { gap: 10px; }
+}
+@media (max-width: 420px) {
+  .patient-list-page { padding: 28px 12px 52px; }
+  .pl-stats { flex-direction: column; }
+  .pl-stat { min-width: unset; }
+}
+
+/* ── SEARCH FILTER JS ─────────────────────────────────── */
+.pl-table tbody tr.pl-hidden { display: none; }
+.pl-mobile-card.pl-hidden { display: none; }
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="patient-list-page">
+  <div class="patient-list-wrap">
+
+    <!-- Page Header -->
+    <div class="pl-head">
+      <div>
+        <div class="pl-chip"><i class="fa fa-users"></i> Patient Management</div>
+        <h1 class="pl-title">
+          <span>{{ request.user.first_name }}'s</span> Patients
+        </h1>
+        <p class="pl-sub">All patients booked under your profile.</p>
+      </div>
+      <a href="{% url 'appointment:doctor-appointment' %}" class="btn-pl-back">
+        <i class="fa fa-arrow-left"></i> Back to Appointments
+      </a>
+    </div>
+
+    <!-- Stats -->
+    <div class="pl-stats">
+      <div class="pl-stat">
+        <div class="pl-stat-icon"><i class="fa fa-users"></i></div>
+        <div>
+          <div class="pl-stat-num">{{ patients.count }}</div>
+          <div class="pl-stat-lbl">Total Patients</div>
+        </div>
+      </div>
+      <div class="pl-stat">
+        <div class="pl-stat-icon"><i class="fa fa-calendar-check-o"></i></div>
+        <div>
+          <div class="pl-stat-num">{{ patients.count }}</div>
+          <div class="pl-stat-lbl">Active Bookings</div>
+        </div>
+      </div>
+      <div class="pl-stat">
+        <div class="pl-stat-icon"><i class="fa fa-user-md"></i></div>
+        <div>
+          <div class="pl-stat-num">Dr. {{ request.user.first_name }}</div>
+          <div class="pl-stat-lbl">Attending Doctor</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="pl-filters">
+      <button class="pl-filter-btn" data-status="applied" onclick="setStatusFilter('applied')">
+        <i class="fa fa-clock-o"></i> Upcoming
+      </button>
+      <button class="pl-filter-btn" data-status="completed" onclick="setStatusFilter('completed')">
+        <i class="fa fa-check-circle"></i> Completed
+      </button>
+      <button class="pl-filter-btn" data-status="no_show" onclick="setStatusFilter('no_show')">
+        <i class="fa fa-user-times"></i> Not Came
+      </button>
+    </div>
+
+    <div class="pl-search-bar">
+      <div class="pl-search-input-wrap">
+        <i class="fa fa-search"></i>
+        <input type="text"
+               id="plSearch"
+               class="pl-search-input"
+               placeholder="Search by name, phone or message…"
+               oninput="filterPatients(this.value)">
+      </div>
+    </div>
+
+    <!-- Table Card -->
+    <div class="pl-table-card">
+
+      {% if patients %}
+
+        <!-- ── DESKTOP TABLE ── -->
+        <div class="pl-table-wrap">
+          <table class="pl-table" id="plTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Patient</th>
+                <th>Phone</th>
+                <th>Message</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Visit Status</th>
+                <th>Reject</th>
+                <th>Visit Complete</th>
+                <th>Delete</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for patient in patients %}
+              <tr data-search="{{ patient.full_name|lower }} {{ patient.phone_number }} {{ patient.message|lower }}"
+                  data-status="{{ patient.status }}">
+                <td style="color:var(--muted);font-size:13px;">{{ forloop.counter }}</td>
+                <td>
+                  <div class="pl-name-cell">
+                    <div class="pl-avatar">{{ patient.full_name|first }}</div>
+                    <div>
+                      <div class="pl-patient-name">{{ patient.full_name }}</div>
+                      <div class="pl-patient-id">Patient #{{ forloop.counter }}</div>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="pl-phone">
+                    <i class="fa fa-phone"></i>
+                    {{ patient.phone_number }}
+                  </div>
+                </td>
+                <td>
+                  {% if patient.message %}
+                    <div class="pl-message" title="{{ patient.message }}">{{ patient.message }}</div>
+                  {% else %}
+                    <span class="pl-message-empty">—</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <div class="pl-date">
+                    <i class="fa fa-calendar"></i>
+                    {{ patient.date }}
+                  </div>
+                </td>
+                <td>
+                  {% if patient.status == 'rejected' %}
+                    <span class="pl-status rejected">Rejected</span>
+                  {% else %}
+                    <span class="pl-status applied">Applied</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if patient.status == 'completed' %}
+                    <span class="pl-status completed">Completed</span>
+                  {% elif patient.status == 'no_show' %}
+                    <span class="pl-status no_show">Not Came</span>
+                  {% elif patient.status == 'rejected' %}
+                    <span class="pl-status rejected">Rejected</span>
+                  {% else %}
+                    <span class="pl-status applied">Upcoming</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if patient.status != 'rejected' and patient.status != 'completed' and patient.status != 'no_show' %}
+                    <a href="{% url 'appointment:patient-status' patient.id 'rejected' %}"
+                       class="btn-pl-action btn-pl-reject"
+                       title="Reject {{ patient.full_name }}">
+                      <i class="fa fa-times-circle"></i> Reject
+                    </a>
+                  {% else %}
+                    <span class="pl-status rejected">—</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if patient.status != 'completed' and patient.status != 'no_show' and patient.status != 'rejected' %}
+                    <a href="{% url 'appointment:patient-status' patient.id 'completed' %}"
+                       class="btn-pl-action btn-pl-complete"
+                       title="Mark visit complete for {{ patient.full_name }}">
+                      <i class="fa fa-check-circle"></i> Visit Complete
+                    </a>
+                  {% else %}
+                    <span class="pl-status completed">—</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <a href="{% url 'appointment:delete-patient' patient.id %}"
+                     class="btn-pl-delete"
+                     title="Delete {{ patient.full_name }}">
+                    <i class="fa fa-trash-o"></i> Delete
+                  </a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ── MOBILE CARDS ── -->
+        <div class="pl-mobile-cards" id="plMobileCards">
+          {% for patient in patients %}
+          <div class="pl-mobile-card"
+               data-search="{{ patient.full_name|lower }} {{ patient.phone_number }} {{ patient.message|lower }}"
+               data-status="{{ patient.status }}">
+            <div class="pl-mobile-card-head">
+              <div class="pl-mobile-avatar">{{ patient.full_name|first }}</div>
+              <div>
+                <div class="pl-mobile-name">{{ patient.full_name }}</div>
+                <div class="pl-mobile-id">Patient #{{ forloop.counter }}</div>
+              </div>
+            </div>
+            <div class="pl-mobile-meta">
+              <div class="pl-mobile-meta-row">
+                <i class="fa fa-phone"></i>
+                {{ patient.phone_number }}
+              </div>
+              {% if patient.message %}
+              <div class="pl-mobile-meta-row">
+                <i class="fa fa-comment"></i>
+                {{ patient.message }}
+              </div>
+              {% endif %}
+              <div class="pl-mobile-meta-row">
+                <i class="fa fa-calendar"></i>
+                {{ patient.date }}
+              </div>
+              <div class="pl-mobile-meta-row">
+                <i class="fa fa-info-circle"></i>
+                {% if patient.status == 'completed' %}
+                  Completed
+                {% elif patient.status == 'no_show' %}
+                  Not Came
+                {% elif patient.status == 'rejected' %}
+                  Rejected
+                {% else %}
+                  Upcoming
+                {% endif %}
+              </div>
+            </div>
+            <div class="pl-mobile-actions">
+              {% if patient.status != 'rejected' and patient.status != 'completed' and patient.status != 'no_show' %}
+                <a href="{% url 'appointment:patient-status' patient.id 'rejected' %}"
+                   class="btn-pl-action-mobile btn-pl-reject-mobile">
+                  <i class="fa fa-times-circle"></i> Reject
+                </a>
+              {% endif %}
+              {% if patient.status != 'completed' and patient.status != 'no_show' %}
+                <a href="{% url 'appointment:patient-status' patient.id 'completed' %}"
+                   class="btn-pl-action-mobile btn-pl-complete-mobile">
+                  <i class="fa fa-check-circle"></i> Complete
+                </a>
+              {% endif %}
+              {% if patient.status != 'completed' and patient.status != 'no_show' %}
+                <a href="{% url 'appointment:patient-status' patient.id 'no_show' %}"
+                   class="btn-pl-action-mobile btn-pl-noshow-mobile">
+                  <i class="fa fa-user-times"></i> Not Came
+                </a>
+              {% endif %}
+              <a href="{% url 'appointment:delete-patient' patient.id %}"
+                 class="btn-pl-delete-mobile">
+                <i class="fa fa-trash-o"></i> Delete Patient
+              </a>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <!-- Pagination info -->
+        <div class="pl-pagination">
+          <div class="pl-pagination-info" id="plTotalCount">
+            Showing <strong>{{ patients.count }}</strong> patient{{ patients.count|pluralize }}
+          </div>
+          <div class="pl-pagination-info" id="plFilterCount" style="display:none;">
+            Showing <strong id="plMatchCount">0</strong> patient(s)
+          </div>
+        </div>
+
+      {% else %}
+
+        <!-- Empty -->
+        <div class="pl-empty">
+          <div class="pl-empty-icon"><i class="fa fa-users"></i></div>
+          <h3>No Patients Yet</h3>
+          <p>
+            No patients have booked an appointment with you yet.
+            Share your profile to get started.
+          </p>
+        </div>
+
+      {% endif %}
+
+    </div><!-- /table-card -->
+
+  </div>
+</div>
+{% endblock %}
+
+
+{% block javascripts %}
+<script>
+var currentStatus = 'applied';
+
+function setStatusFilter(status) {
+  currentStatus = status;
+  var btns = document.querySelectorAll('.pl-filter-btn');
+  btns.forEach(function(b) {
+    b.classList.toggle('active', b.getAttribute('data-status') === status);
+  });
+  var input = document.getElementById('plSearch');
+  filterPatients(input ? input.value : '');
+}
+
+function filterPatients(query) {
+  var q = query.toLowerCase().trim();
+
+  /* table rows */
+  var rows = document.querySelectorAll('#plTable tbody tr');
+  /* mobile cards */
+  var cards = document.querySelectorAll('#plMobileCards .pl-mobile-card');
+
+  var matchCount = 0;
+
+  rows.forEach(function(row) {
+    var text = row.getAttribute('data-search') || '';
+    var status = row.getAttribute('data-status') || '';
+    var matchStatus = !currentStatus || status === currentStatus;
+    var match = matchStatus && (!q || text.indexOf(q) !== -1);
+    row.classList.toggle('pl-hidden', !match);
+    if (match) matchCount++;
+  });
+
+  cards.forEach(function(card) {
+    var text = card.getAttribute('data-search') || '';
+    var status = card.getAttribute('data-status') || '';
+    var matchStatus = !currentStatus || status === currentStatus;
+    var match = matchStatus && (!q || text.indexOf(q) !== -1);
+    card.classList.toggle('pl-hidden', !match);
+  });
+
+  /* update counter */
+  var filterInfo = document.getElementById('plFilterCount');
+  var totalInfo  = document.getElementById('plTotalCount');
+  var matchEl    = document.getElementById('plMatchCount');
+  if (q || currentStatus) {
+    filterInfo.style.display = 'block';
+    if (totalInfo) totalInfo.style.display = 'none';
+    matchEl.textContent = matchCount;
+  } else {
+    filterInfo.style.display = 'none';
+    if (totalInfo) totalInfo.style.display = 'block';
+  }
+}
+
+/* default filter */
+document.addEventListener('DOMContentLoaded', function () {
+  setStatusFilter('applied');
+});
+</script>
+{% endblock %}

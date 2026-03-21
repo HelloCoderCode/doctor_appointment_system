@@ -1,0 +1,428 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load bootstrap %}
+
+{% block title %}Take Appointment — MediCare Plus{% endblock %}
+
+{% block styles %}
+<style>
+/* ══════════════════════════════════════════════════════════
+   TOKENS (same as search page)
+══════════════════════════════════════════════════════════ */
+:root {
+  --teal    : #0b6e6e;
+  --teal2   : #0d9191;
+  --teal-dk : #064848;
+  --saffron : #e8600a;
+  --saffron2: #ff8c38;
+  --ink     : #0f1f1f;
+  --muted   : #6b8585;
+  --cream   : #f4f9f8;
+  --white   : #ffffff;
+  --border  : #d9eaea;
+  --red     : #d94040;
+  --ease    : cubic-bezier(.4,0,.2,1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { overflow-x: hidden !important; max-width: 100vw; }
+
+/* ══════════════════════════════════════════════════════════
+   HERO BANNER
+══════════════════════════════════════════════════════════ */
+.appt-hero {
+  width: 100%; overflow: hidden;
+  min-height: 280px;
+  display: flex; align-items: center;
+  background-size: cover !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+  position: relative;
+}
+.appt-hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(6,30,30,.90) 0%,
+    rgba(11,110,110,.60) 55%,
+    rgba(232,96,10,.18) 100%
+  );
+  z-index: 1;
+}
+.appt-hero-inner {
+  position: relative; z-index: 2;
+  width: 100%; padding: 52px 24px 48px;
+  max-width: 1200px; margin: 0 auto;
+}
+.appt-hero-label {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: rgba(255,255,255,.14); color: rgba(255,255,255,.90);
+  border: 1px solid rgba(255,255,255,.28);
+  font-size: 11px; font-weight: 700; letter-spacing: .09em;
+  text-transform: uppercase; padding: 6px 16px;
+  border-radius: 50px; margin-bottom: 18px;
+  backdrop-filter: blur(8px);
+}
+.appt-hero h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(26px, 5vw, 44px);
+  font-weight: 700; color: #fff; line-height: 1.15;
+  text-shadow: 0 4px 20px rgba(0,0,0,.28);
+}
+.appt-hero h1 span { color: var(--saffron2); }
+
+/* ══════════════════════════════════════════════════════════
+   FORM SECTION
+══════════════════════════════════════════════════════════ */
+.appt-section {
+  background: var(--cream);
+  padding: 60px 16px 80px;
+  font-family: 'DM Sans', sans-serif;
+}
+.appt-wrap {
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+/* ── FORM CARD ────────────────────────────────────────── */
+.appt-card {
+  background: var(--white);
+  border-radius: 24px;
+  border: 1px solid var(--border);
+  box-shadow: 0 20px 56px rgba(11,110,110,.10);
+  overflow: hidden;
+}
+
+.appt-card-header {
+  background: linear-gradient(135deg, var(--teal-dk), var(--teal));
+  padding: 28px 36px 24px;
+  display: flex; align-items: center; gap: 16px;
+}
+.appt-card-header-icon {
+  width: 52px; height: 52px; border-radius: 16px;
+  background: rgba(255,255,255,.15);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; color: #fff;
+  border: 1px solid rgba(255,255,255,.20);
+  flex-shrink: 0;
+}
+.appt-card-header-text h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px; font-weight: 700; color: #fff;
+  line-height: 1.2; margin-bottom: 3px;
+}
+.appt-card-header-text p {
+  font-size: 13px; color: rgba(255,255,255,.70);
+}
+
+.appt-card-body {
+  padding: 36px;
+}
+
+/* ── STEP INDICATOR ───────────────────────────────────── */
+.appt-steps {
+  display: flex; align-items: center;
+  gap: 0; margin-bottom: 32px;
+}
+.appt-step {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 700;
+  color: var(--muted); text-transform: uppercase; letter-spacing: .05em;
+}
+.appt-step.active { color: var(--teal); }
+.appt-step-num {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--border); color: var(--muted);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700;
+}
+.appt-step.active .appt-step-num {
+  background: var(--teal); color: #fff;
+}
+.appt-step-line {
+  flex: 1; height: 2px;
+  background: var(--border);
+  margin: 0 10px;
+}
+
+/* ── FORM FIELDS ──────────────────────────────────────── */
+
+/* Override bootstrap form styles */
+.appt-card-body .form-group,
+.appt-card-body .mb-3 {
+  margin-bottom: 20px !important;
+}
+
+.appt-card-body label {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 700; color: var(--teal);
+  text-transform: uppercase; letter-spacing: .06em;
+  margin-bottom: 7px !important;
+}
+
+.appt-card-body input[type="text"],
+.appt-card-body input[type="email"],
+.appt-card-body input[type="number"],
+.appt-card-body input[type="date"],
+.appt-card-body input[type="time"],
+.appt-card-body input[type="tel"],
+.appt-card-body select,
+.appt-card-body textarea {
+  width: 100% !important;
+  padding: 12px 16px !important;
+  border: 1.5px solid var(--border) !important;
+  border-radius: 12px !important;
+  font-family: 'DM Sans', sans-serif !important;
+  font-size: 14px !important;
+  color: var(--ink) !important;
+  background: var(--cream) !important;
+  outline: none !important;
+  box-shadow: none !important;
+  transition: border-color .22s, box-shadow .22s, background .22s;
+  -webkit-appearance: none; appearance: none;
+}
+
+.appt-card-body select {
+  padding-top: 10px !important;
+  padding-bottom: 10px !important;
+  min-height: 46px !important;
+  line-height: 1.4 !important;
+}
+.appt-card-body select option {
+  line-height: 1.4;
+}
+
+.appt-card-body input:focus,
+.appt-card-body select:focus,
+.appt-card-body textarea:focus {
+  border-color: var(--teal) !important;
+  box-shadow: 0 0 0 3px rgba(11,110,110,.10) !important;
+  background: var(--white) !important;
+}
+
+.appt-card-body input::placeholder,
+.appt-card-body textarea::placeholder {
+  color: #a8c4c4 !important;
+}
+
+.appt-card-body select {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%230b6e6e' d='M6 8L1 3h10z'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 14px center !important;
+  padding-right: 38px !important;
+}
+
+.appt-card-body textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* error states */
+.appt-card-body .errorlist {
+  list-style: none; padding: 0; margin: 6px 0 0;
+}
+.appt-card-body .errorlist li {
+  font-size: 12px; color: var(--red);
+  display: flex; align-items: center; gap: 5px;
+}
+.appt-card-body .errorlist li::before {
+  content: '\f071';
+  font-family: FontAwesome;
+  font-size: 10px;
+}
+
+.appt-card-body .is-invalid,
+.appt-card-body input.is-invalid {
+  border-color: var(--red) !important;
+}
+
+/* ── DIVIDER ──────────────────────────────────────────── */
+.appt-divider {
+  height: 1px; background: var(--border);
+  margin: 28px 0;
+}
+
+/* ── FOOTER ACTIONS ───────────────────────────────────── */
+.appt-actions {
+  display: flex; align-items: center;
+  justify-content: space-between; flex-wrap: wrap;
+  gap: 12px; margin-top: 8px;
+}
+
+.btn-appt-back {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 12px 22px; border-radius: 50px;
+  background: transparent; color: var(--teal) !important;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 700;
+  border: 1.5px solid var(--teal);
+  text-decoration: none !important;
+  transition: background .22s, color .22s;
+}
+.btn-appt-back:hover { background: var(--teal); color: #fff !important; }
+
+.btn-appt-submit {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 13px 32px; border-radius: 50px;
+  background: var(--saffron); color: #fff !important;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; font-weight: 700;
+  border: none; cursor: pointer;
+  box-shadow: 0 4px 14px rgba(232,96,10,.30);
+  transition: background .22s, transform .22s;
+  text-decoration: none !important;
+}
+.btn-appt-submit:hover { background: var(--saffron2); transform: translateY(-2px); }
+
+/* ── INFO STRIP ───────────────────────────────────────── */
+.appt-info-strip {
+  display: flex; gap: 12px; flex-wrap: wrap;
+  margin-top: 24px;
+}
+.appt-info-item {
+  flex: 1; min-width: 160px;
+  display: flex; align-items: center; gap: 10px;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 14px; padding: 14px 16px;
+}
+.appt-info-item-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: rgba(11,110,110,.08);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; color: var(--teal);
+  flex-shrink: 0;
+}
+.appt-info-item-text span {
+  display: block; font-size: 10px; font-weight: 700;
+  color: var(--muted); text-transform: uppercase; letter-spacing: .06em;
+}
+.appt-info-item-text strong {
+  font-size: 13px; font-weight: 700; color: var(--ink);
+}
+
+/* ══════════════════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════════════════ */
+@media (max-width: 640px) {
+  .appt-hero { min-height: auto; }
+  .appt-hero-inner { padding: 36px 16px 32px; }
+  .appt-card-body { padding: 24px 20px; }
+  .appt-card-header { padding: 22px 20px; }
+  .appt-actions { flex-direction: column; }
+  .btn-appt-back,
+  .btn-appt-submit { width: 100%; justify-content: center; }
+}
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<!-- ═══════════════════════════════════════════════════════
+     HERO BANNER
+═══════════════════════════════════════════════════════ -->
+<div class="appt-hero"
+     style="background-image: url('{% static 'img/bg-img/13.jpg' %}');">
+  <div class="appt-hero-inner">
+    <div class="appt-hero-label">
+      <i class="fa fa-calendar-check-o"></i>&nbsp; Online Booking
+    </div>
+    <h1>
+      Book Your <span>Appointment</span><br>
+      Instantly &amp; Securely
+    </h1>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     FORM SECTION
+═══════════════════════════════════════════════════════ -->
+<section class="appt-section">
+  <div class="appt-wrap">
+
+    <!-- Info strip -->
+    <div class="appt-info-strip">
+      <div class="appt-info-item">
+        <div class="appt-info-item-icon"><i class="fa fa-shield"></i></div>
+        <div class="appt-info-item-text">
+          <span>Secure</span>
+          <strong>Verified Booking</strong>
+        </div>
+      </div>
+      <div class="appt-info-item">
+        <div class="appt-info-item-icon"><i class="fa fa-clock-o"></i></div>
+        <div class="appt-info-item-text">
+          <span>Response</span>
+          <strong>Within 2 Hours</strong>
+        </div>
+      </div>
+      <div class="appt-info-item">
+        <div class="appt-info-item-icon"><i class="fa fa-user-md"></i></div>
+        <div class="appt-info-item-text">
+          <span>Network</span>
+          <strong>500+ Specialists</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Card -->
+    <div class="appt-card" style="margin-top: 28px;">
+
+      <!-- Card Header -->
+      <div class="appt-card-header">
+        <div class="appt-card-header-icon">
+          <i class="fa fa-calendar-plus-o"></i>
+        </div>
+        <div class="appt-card-header-text">
+          <h2>Appointment Details</h2>
+          <p>Fill in the form below and we'll confirm your slot</p>
+        </div>
+      </div>
+
+      <!-- Card Body -->
+      <div class="appt-card-body">
+
+        <!-- Step indicator -->
+        <div class="appt-steps">
+          <div class="appt-step active">
+            <div class="appt-step-num">1</div> Details
+          </div>
+          <div class="appt-step-line"></div>
+          <div class="appt-step">
+            <div class="appt-step-num">2</div> Confirm
+          </div>
+          <div class="appt-step-line"></div>
+          <div class="appt-step">
+            <div class="appt-step-num">3</div> Done
+          </div>
+        </div>
+
+        <!-- Django Form -->
+        <form action="" method="POST">
+          {% csrf_token %}
+
+          {{ form|bootstrap }}
+
+          <div class="appt-divider"></div>
+
+          <div class="appt-actions">
+            <a href="{% url 'appointment:home' %}" class="btn-appt-back">
+              <i class="fa fa-arrow-left"></i> Go Back
+            </a>
+            <button type="submit" class="btn-appt-submit">
+              <i class="fa fa-calendar-check-o"></i> Confirm Appointment
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+{% endblock %}

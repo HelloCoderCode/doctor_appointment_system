@@ -1,0 +1,523 @@
+{% load static %}
+
+<!-- ── PRELOADER ─────────────────────────────────────────── -->
+<div id="preloader">
+  <div class="preload-content">
+    <div id="dento-load"></div>
+  </div>
+</div>
+
+<style>
+/* ══════════════════════════════════════════════════════════
+   TOP BAR
+══════════════════════════════════════════════════════════ */
+.top-header-area {
+  background: linear-gradient(90deg, #0a1a1a 0%, #0b3a3a 100%);
+  height: 38px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  position: relative;
+  z-index: 1001;
+}
+.top-header-area .container,
+.top-header-area .row { height: 38px; }
+.top-header-area .top-header-content {
+  display: flex; align-items: center;
+  height: 38px; gap: 0; overflow: hidden; flex-wrap: nowrap;
+}
+.top-header-area .top-header-content a {
+  font-size: 11.5px; font-weight: 500;
+  color: rgba(255,255,255,.72);
+  display: inline-flex; align-items: center; gap: 5px;
+  transition: color .22s; white-space: nowrap;
+  margin-right: 16px; text-decoration: none;
+}
+.top-header-area .top-header-content a i { color: #ff8c38; font-size: 11px; }
+.top-header-area .top-header-content a:hover { color: #ff8c38; }
+.top-phone-pill {
+  display: inline-flex !important; align-items: center; gap: 5px;
+  background: rgba(232,96,10,.18); color: #ff8c38 !important;
+  border: 1px solid rgba(232,96,10,.28);
+  padding: 2px 11px; border-radius: 50px;
+  font-weight: 700 !important; font-size: 11px !important;
+  margin-right: 0 !important;
+}
+.top-phone-pill i { color: #ff8c38 !important; }
+.top-header-social-info {
+  display: flex !important; align-items: center;
+  justify-content: flex-end; height: 38px; gap: 2px;
+}
+.top-header-social-info a {
+  color: rgba(255,255,255,.50); font-size: 13px;
+  width: 26px; height: 26px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 6px; transition: color .22s, background .22s;
+  text-decoration: none;
+}
+.top-header-social-info a:hover { color: #ff8c38; background: rgba(255,255,255,.08); }
+
+@media (max-width: 575px) { .top-header-area { display: none; } }
+@media (max-width: 767px) {
+  .top-header-area .top-header-content a span { display: none; }
+}
+
+/* ══════════════════════════════════════════════════════════
+   MAIN NAV WRAPPER
+══════════════════════════════════════════════════════════ */
+.main-header-area {
+  background: rgba(255,255,255,.98);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid #d9eaea;
+  box-shadow: 0 2px 16px rgba(11,110,110,.06);
+  position: sticky; top: 0; z-index: 1000;
+  transition: box-shadow .3s;
+}
+.main-header-area.scrolled { box-shadow: 0 4px 28px rgba(11,110,110,.14); }
+
+/* ── CUSTOM NAV INNER ─────────────────────────────────── */
+.mc-nav {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  height: 60px; gap: 12px;
+}
+@media (max-width: 575px) { .mc-nav { height: 54px; } }
+
+/* ── LOGO (text only, no img) ─────────────────────────── */
+.mc-logo {
+  display: inline-flex; align-items: center; gap: 9px;
+  text-decoration: none; flex-shrink: 0;
+  transition: opacity .2s;
+}
+.mc-logo:hover { opacity: .85; }
+.mc-logo-icon {
+  width: 34px; height: 34px;
+  background: linear-gradient(135deg, #0b6e6e 0%, #0d9191 100%);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 16px; flex-shrink: 0;
+  box-shadow: 0 3px 10px rgba(11,110,110,.28);
+}
+.mc-logo-text { line-height: 1.1; }
+.mc-logo-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px; font-weight: 700; color: #0b6e6e; line-height: 1;
+}
+.mc-logo-name span { color: #e8600a; }
+.mc-logo-sub {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 9.5px; font-weight: 600; color: #6b8585;
+  letter-spacing: .07em; text-transform: uppercase;
+  margin-top: 2px; display: block;
+}
+
+/* ── DESKTOP LINKS ────────────────────────────────────── */
+.mc-nav-links {
+  display: flex; align-items: center; gap: 2px;
+  flex: 1; justify-content: center;
+}
+.mc-nav-links a {
+  font-size: 12px; font-weight: 600;
+  letter-spacing: .04em; text-transform: uppercase;
+  color: #2a3a3a !important; padding: 6px 12px;
+  border-radius: 50px;
+  transition: background .22s, color .22s;
+  text-decoration: none; white-space: nowrap;
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.mc-nav-links a:hover { color: #0b6e6e !important; background: rgba(11,110,110,.09); }
+
+/* user pill */
+.mc-user-pill {
+  display: inline-flex !important; align-items: center; gap: 7px;
+  background: rgba(11,110,110,.08); border: 1.5px solid rgba(11,110,110,.20);
+  color: #0b6e6e !important; padding: 5px 14px;
+  border-radius: 50px; font-weight: 700; font-size: 12px;
+  text-decoration: none; white-space: nowrap;
+  position: relative; cursor: pointer;
+}
+.mc-user-pill .fa { color: #0b6e6e; font-size: 13px; }
+
+/* user dropdown */
+.mc-user-dropdown {
+  position: absolute; top: calc(100% + 10px); left: 50%;
+  transform: translateX(-50%);
+  background: #fff; border-radius: 16px;
+  border: 1px solid #d9eaea;
+  box-shadow: 0 16px 48px rgba(11,110,110,.16);
+  min-width: 200px; z-index: 9999;
+  padding: 6px 0; overflow: hidden;
+  opacity: 0; visibility: hidden;
+  transform: translateX(-50%) translateY(6px);
+  transition: opacity .22s, transform .22s, visibility .22s;
+}
+.mc-user-wrap:hover .mc-user-dropdown,
+.mc-user-wrap:focus-within .mc-user-dropdown {
+  opacity: 1; visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+.mc-user-dropdown a {
+  display: flex; align-items: center; gap: 9px;
+  padding: 10px 18px; font-size: 13px; font-weight: 500;
+  color: #0f1f1f !important; text-decoration: none;
+  border-bottom: 1px solid #f0f7f7;
+  transition: background .2s, padding-left .2s;
+  text-transform: none !important; letter-spacing: 0 !important;
+}
+.mc-user-dropdown a:last-child { border-bottom: none; }
+.mc-user-dropdown a:hover { background: rgba(11,110,110,.06); padding-left: 24px; color: #0b6e6e !important; }
+.mc-user-dropdown .logout-item { color: #d94040 !important; }
+.mc-user-dropdown .logout-item i { color: #d94040 !important; }
+.mc-user-dropdown .logout-item:hover { background: rgba(217,64,64,.06); color: #d94040 !important; }
+
+/* ── DESKTOP ACTION BUTTONS ───────────────────────────── */
+.mc-nav-actions {
+  display: flex; align-items: center; gap: 7px; flex-shrink: 0;
+}
+.btn-nav-login {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 7px 14px; border-radius: 50px;
+  background: transparent; color: #2a3a3a !important;
+  border: 1.5px solid #c8dede;
+  font-size: 11.5px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .04em;
+  white-space: nowrap; text-decoration: none;
+  transition: border-color .22s, color .22s, background .22s;
+}
+.btn-nav-login:hover { border-color: #0b6e6e; color: #0b6e6e !important; background: rgba(11,110,110,.05); }
+.btn-reg-doctor {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 7px 14px; border-radius: 50px;
+  background: transparent; color: #0b6e6e !important;
+  border: 1.5px solid #0b6e6e;
+  font-size: 11.5px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .04em;
+  white-space: nowrap; text-decoration: none;
+  transition: background .22s, color .22s, transform .22s;
+}
+.btn-reg-doctor:hover { background: #0b6e6e; color: #fff !important; transform: translateY(-1px); }
+.btn-reg-patient {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 7px 14px; border-radius: 50px;
+  background: #0b6e6e; color: #fff !important;
+  border: 1.5px solid #0b6e6e;
+  font-size: 11.5px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .04em;
+  white-space: nowrap; text-decoration: none;
+  box-shadow: 0 3px 12px rgba(11,110,110,.24);
+  transition: background .22s, transform .22s;
+}
+.btn-reg-patient:hover { background: #0d9191; transform: translateY(-1px); color: #fff !important; }
+.btn-nav-book {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 18px; border-radius: 50px;
+  background: #e8600a; color: #fff !important;
+  font-size: 11.5px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .04em;
+  white-space: nowrap; text-decoration: none;
+  box-shadow: 0 4px 14px rgba(232,96,10,.28);
+  transition: background .22s, transform .22s;
+}
+.btn-nav-book:hover { background: #ff8c38; transform: translateY(-2px); color: #fff !important; }
+
+/* ── HAMBURGER BUTTON ─────────────────────────────────── */
+.mc-hamburger {
+  display: none; flex-direction: column; justify-content: center;
+  align-items: center; gap: 5px;
+  width: 40px; height: 40px;
+  background: rgba(11,110,110,.08);
+  border: 1.5px solid rgba(11,110,110,.18);
+  border-radius: 10px; cursor: pointer;
+  flex-shrink: 0; transition: background .22s;
+}
+.mc-hamburger:hover { background: rgba(11,110,110,.16); }
+.mc-hamburger span {
+  display: block; width: 18px; height: 2px;
+  background: #0b6e6e; border-radius: 2px;
+  transition: transform .25s, opacity .25s;
+}
+.mc-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.mc-hamburger.open span:nth-child(2) { opacity: 0; }
+.mc-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* ══════════════════════════════════════════════════════════
+   MOBILE SLIDE-DOWN MENU
+══════════════════════════════════════════════════════════ */
+.mc-mobile-menu {
+  display: none;
+  position: fixed;
+  top: 98px; /* topbar(38) + nav(60) */
+  left: 0; right: 0;
+  background: #fff;
+  border-top: 2px solid #d9eaea;
+  box-shadow: 0 20px 48px rgba(11,110,110,.16);
+  z-index: 998;
+  padding: 12px 0 20px;
+  max-height: calc(100vh - 98px);
+  overflow-y: auto;
+}
+.mc-mobile-menu.open { display: block; }
+
+/* when topbar is hidden on very small screens */
+@media (max-width: 575px) {
+  .mc-mobile-menu { top: 54px; max-height: calc(100vh - 54px); }
+}
+
+.mc-mobile-menu a {
+  display: flex; align-items: center; gap: 10px;
+  padding: 13px 24px; font-size: 14px; font-weight: 600;
+  color: #2a3a3a !important; text-decoration: none;
+  border-bottom: 1px solid #f0f7f7;
+  transition: background .2s, color .2s, padding-left .2s;
+  text-transform: none;
+}
+.mc-mobile-menu a i { color: #0b6e6e; font-size: 14px; width: 18px; text-align: center; }
+.mc-mobile-menu a:hover { background: #f4f9f8; color: #0b6e6e !important; padding-left: 30px; }
+
+/* section label inside mobile menu */
+.mc-mobile-label {
+  font-size: 10px; font-weight: 700; letter-spacing: .10em;
+  text-transform: uppercase; color: #9cb5b5;
+  padding: 14px 24px 6px; display: block;
+}
+
+/* mobile action buttons */
+.mc-mobile-btns {
+  display: flex; flex-direction: column; gap: 8px;
+  padding: 14px 20px 0;
+}
+.mc-mobile-btns a {
+  justify-content: center; border-radius: 12px !important;
+  font-size: 13px; padding: 12px 18px !important;
+  border-bottom: none !important;
+  font-weight: 700;
+}
+.mc-mobile-btns a:hover { padding-left: 18px !important; }
+.mc-mobile-btns .btn-nav-login  { border-radius: 12px; font-size: 13px; }
+.mc-mobile-btns .btn-reg-doctor { border-radius: 12px; font-size: 13px; }
+.mc-mobile-btns .btn-reg-patient{ border-radius: 12px; font-size: 13px; }
+.mc-mobile-btns .btn-nav-book   { border-radius: 12px; font-size: 13px; }
+
+.mc-mobile-logout {
+  color: #d94040 !important;
+}
+.mc-mobile-logout i { color: #d94040 !important; }
+
+/* ══════════════════════════════════════════════════════════
+   RESPONSIVE SHOW/HIDE
+══════════════════════════════════════════════════════════ */
+@media (max-width: 991px) {
+  .mc-nav-links  { display: none; }
+  .mc-nav-actions{ display: none; }
+  .mc-hamburger  { display: flex; }
+}
+@media (min-width: 992px) {
+  .mc-hamburger    { display: none; }
+  .mc-mobile-menu  { display: none !important; }
+}
+
+/* hide classy-nav default elements we're not using */
+.classy-navbar-toggler { display: none !important; }
+.classy-menu { display: none !important; }
+</style>
+
+<!-- ***** Header Area Start ***** -->
+<header class="header-area">
+
+  <!-- ── TOP BAR ─────────────────────────────────────────── -->
+  <div class="top-header-area">
+    <div class="container h-100">
+      <div class="row h-100 align-items-center">
+
+        <div class="col-7 col-sm-8 col-lg-9">
+          <div class="top-header-content">
+            <a href="https://maps.google.com/?q=Connaught+Place+New+Delhi"
+               target="_blank" rel="noopener">
+              <i class="fa fa-map-marker"></i>
+              <span>Connaught Place, New Delhi</span>
+            </a>
+            <a href="mailto:care@medicareplusdelhi.in">
+              <i class="fa fa-envelope"></i>
+              <span>care@medicareplusdelhi.in</span>
+            </a>
+            <a href="tel:+919810000000" class="top-phone-pill">
+              <i class="fa fa-phone"></i>
+              <span>+91 98100 00000</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="col-5 col-sm-4 col-lg-3">
+          <div class="top-header-social-info text-right">
+            <a href="#"><i class="fa fa-facebook"></i></a>
+            <a href="#"><i class="fa fa-twitter"></i></a>
+            <a href="#"><i class="fa fa-instagram"></i></a>
+            <a href="#"><i class="fa fa-linkedin"></i></a>
+            <a href="#"><i class="fa fa-youtube-play"></i></a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MAIN NAV ─────────────────────────────────────────── -->
+  <div class="main-header-area" id="mainHeader">
+    <div class="container">
+      <div class="mc-nav">
+
+        <!-- LOGO (text only, no img) -->
+        <a class="mc-logo" href="{% url 'appointment:home' %}">
+          <div class="mc-logo-icon">
+            <i class="fa fa-heartbeat"></i>
+          </div>
+          <div class="mc-logo-text">
+            <div class="mc-logo-name">MediCare<span>+</span></div>
+            <span class="mc-logo-sub">New Delhi</span>
+          </div>
+        </a>
+
+        <!-- DESKTOP NAV LINKS -->
+        <nav class="mc-nav-links">
+          <a href="{% url 'appointment:home' %}"><i class="fa fa-home"></i> Home</a>
+          <a href="{% url 'appointment:service' %}"><i class="fa fa-stethoscope"></i> Services</a>
+
+          {% if request.user.is_authenticated and request.user.role == 'doctor' %}
+            <div class="mc-user-wrap" style="position:relative;">
+              <a href="#" class="mc-user-pill">
+                <i class="fa fa-user-md"></i> Dr. {{ request.user.first_name }}
+                <i class="fa fa-angle-down" style="font-size:11px; margin-left:2px;"></i>
+              </a>
+              <div class="mc-user-dropdown">
+                <a href="{% url 'accounts:doctor-profile-update' %}"><i class="fa fa-pencil"></i> Edit Profile</a>
+                <a href="{% url 'appointment:patient-list' %}"><i class="fa fa-users"></i> My Patients</a>
+                <a href="{% url 'appointment:doctor-appointment' %}"><i class="fa fa-calendar"></i> Appointments</a>
+                <a href="{% url 'appointment:doctor-appointment-create' %}"><i class="fa fa-plus-circle"></i> New Appointment</a>
+                <a href="{% url 'accounts:logout' %}" class="logout-item"><i class="fa fa-sign-out"></i> Logout</a>
+              </div>
+            </div>
+
+          {% elif request.user.is_authenticated and request.user.role == 'patient' %}
+            <div class="mc-user-wrap" style="position:relative;">
+              <a href="#" class="mc-user-pill">
+                <i class="fa fa-user"></i> {{ request.user.first_name }}
+                <i class="fa fa-angle-down" style="font-size:11px; margin-left:2px;"></i>
+              </a>
+              <div class="mc-user-dropdown">
+                <a href="{% url 'accounts:patient-profile-update' %}"><i class="fa fa-pencil"></i> Edit Profile</a>
+                <a href="{% url 'appointment:patient-appointments' %}"><i class="fa fa-list"></i> Appointment History</a>
+                <a href="{% url 'accounts:logout' %}" class="logout-item"><i class="fa fa-sign-out"></i> Logout</a>
+              </div>
+            </div>
+          {% endif %}
+        </nav>
+
+        <!-- DESKTOP ACTION BUTTONS -->
+        <div class="mc-nav-actions">
+          {% if not request.user.is_authenticated %}
+            <a href="{% url 'accounts:login' %}" class="btn-nav-login">
+              <i class="fa fa-sign-in"></i> Login
+            </a>
+            <a href="{% url 'accounts:doctor-register' %}" class="btn-reg-doctor">
+              <i class="fa fa-user-md"></i> Doctor
+            </a>
+            <a href="{% url 'accounts:patient-register' %}" class="btn-reg-patient">
+              <i class="fa fa-user"></i> Patient
+            </a>
+          {% else %}
+            <a href="{% url 'appointment:home' %}" class="btn-nav-book">
+              <i class="fa fa-calendar-check-o"></i> Book Appointment
+            </a>
+          {% endif %}
+        </div>
+
+        <!-- HAMBURGER (mobile only) -->
+        <button class="mc-hamburger" id="mcHamburger" aria-label="Toggle menu">
+          <span></span><span></span><span></span>
+        </button>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MOBILE SLIDE-DOWN MENU ══════════════════════════════ -->
+  <div class="mc-mobile-menu" id="mcMobileMenu">
+
+    <span class="mc-mobile-label">Navigation</span>
+    <a href="{% url 'appointment:home' %}"><i class="fa fa-home"></i> Home</a>
+    <a href="{% url 'appointment:service' %}"><i class="fa fa-stethoscope"></i> Services</a>
+
+    {% if request.user.is_authenticated and request.user.role == 'doctor' %}
+      <span class="mc-mobile-label">Dr. {{ request.user.first_name }}</span>
+      <a href="{% url 'accounts:doctor-profile-update' %}"><i class="fa fa-pencil"></i> Edit Profile</a>
+      <a href="{% url 'appointment:patient-list' %}"><i class="fa fa-users"></i> My Patients</a>
+      <a href="{% url 'appointment:doctor-appointment' %}"><i class="fa fa-calendar"></i> Appointments</a>
+      <a href="{% url 'appointment:doctor-appointment-create' %}"><i class="fa fa-plus-circle"></i> New Appointment</a>
+      <a href="{% url 'accounts:logout' %}" class="mc-mobile-logout"><i class="fa fa-sign-out"></i> Logout</a>
+
+    {% elif request.user.is_authenticated and request.user.role == 'patient' %}
+      <span class="mc-mobile-label">{{ request.user.first_name }}</span>
+      <a href="{% url 'accounts:patient-profile-update' %}"><i class="fa fa-pencil"></i> Edit Profile</a>
+      <a href="{% url 'accounts:logout' %}" class="mc-mobile-logout"><i class="fa fa-sign-out"></i> Logout</a>
+    {% endif %}
+
+    <!-- Mobile buttons -->
+    <div class="mc-mobile-btns">
+      {% if not request.user.is_authenticated %}
+        <a href="{% url 'accounts:login' %}" class="btn-nav-login">
+          <i class="fa fa-sign-in"></i> Login
+        </a>
+        <a href="{% url 'accounts:doctor-register' %}" class="btn-reg-doctor">
+          <i class="fa fa-user-md"></i> Register as Doctor
+        </a>
+        <a href="{% url 'accounts:patient-register' %}" class="btn-reg-patient">
+          <i class="fa fa-user"></i> Register as Patient
+        </a>
+      {% else %}
+        <a href="{% url 'appointment:home' %}" class="btn-nav-book">
+          <i class="fa fa-calendar-check-o"></i> Book Appointment
+        </a>
+      {% endif %}
+    </div>
+
+  </div>
+  <!-- /mobile menu -->
+
+</header>
+
+<script>
+(function () {
+  /* sticky shadow */
+  var hdr = document.getElementById('mainHeader');
+  if (hdr) {
+    window.addEventListener('scroll', function () {
+      hdr.classList.toggle('scrolled', window.scrollY > 30);
+    }, { passive: true });
+  }
+
+  /* hamburger toggle */
+  var btn  = document.getElementById('mcHamburger');
+  var menu = document.getElementById('mcMobileMenu');
+  if (btn && menu) {
+    btn.addEventListener('click', function () {
+      btn.classList.toggle('open');
+      menu.classList.toggle('open');
+    });
+
+    /* close on link click */
+    menu.querySelectorAll('a').forEach(function (a) {
+      a.addEventListener('click', function () {
+        btn.classList.remove('open');
+        menu.classList.remove('open');
+      });
+    });
+
+    /* close on outside click */
+    document.addEventListener('click', function (e) {
+      if (!btn.contains(e.target) && !menu.contains(e.target)) {
+        btn.classList.remove('open');
+        menu.classList.remove('open');
+      }
+    });
+  }
+})();
+</script>

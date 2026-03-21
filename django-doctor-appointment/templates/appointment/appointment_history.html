@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}My Appointments{% endblock %}
+
+{% block styles %}
+<style>
+:root {
+  --teal    : #0b6e6e;
+  --teal2   : #0d9191;
+  --teal-dk : #064848;
+  --saffron : #e8600a;
+  --saffron2: #ff8c38;
+  --ink     : #0f1f1f;
+  --muted   : #6b8585;
+  --cream   : #f4f9f8;
+  --white   : #ffffff;
+  --border  : #d9eaea;
+}
+.appt-section { background: var(--cream); padding: 60px 16px 80px; font-family: 'DM Sans', sans-serif; }
+.appt-wrap { max-width: 980px; margin: 0 auto; }
+.appt-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
+.appt-head h2 { font-family: 'Cormorant Garamond', serif; font-size: 32px; margin: 0; color: var(--ink); }
+.appt-sub { color: var(--muted); font-size: 13px; }
+.appt-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.appt-card { background: var(--white); border: 1px solid var(--border); border-radius: 18px; padding: 18px; box-shadow: 0 10px 30px rgba(11,110,110,.08); }
+.appt-card h3 { margin: 0 0 6px; font-size: 18px; color: var(--ink); }
+.appt-meta { display: flex; flex-wrap: wrap; gap: 10px 14px; font-size: 12px; color: var(--muted); }
+.appt-meta span { display: inline-flex; align-items: center; gap: 6px; }
+.appt-actions { margin-top: 12px; display: flex; gap: 10px; }
+.btn-appt { display: inline-flex; align-items: center; gap: 7px; padding: 10px 16px; border-radius: 50px; font-size: 12px; font-weight: 700; text-decoration: none !important; }
+.btn-appt-primary { background: var(--saffron); color: #fff !important; box-shadow: 0 4px 14px rgba(232,96,10,.30); }
+.btn-appt-outline { border: 1.5px solid var(--teal); color: var(--teal) !important; }
+.btn-appt-primary:hover { background: var(--saffron2); }
+.btn-appt-outline:hover { background: var(--teal); color: #fff !important; }
+.appt-empty { text-align: center; padding: 50px 16px; color: var(--muted); background: var(--white); border: 1px dashed var(--border); border-radius: 18px; }
+@media (max-width: 860px) { .appt-grid { grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="appt-section">
+  <div class="appt-wrap">
+    <div class="appt-head">
+      <div>
+        <h2>My Appointments</h2>
+        <div class="appt-sub">All confirmed and applied appointments</div>
+      </div>
+      <a href="{% url 'appointment:home' %}" class="btn-appt btn-appt-outline">
+        <i class="fa fa-arrow-left"></i> Back
+      </a>
+    </div>
+
+    {% if bookings %}
+      <div class="appt-grid">
+        {% for b in bookings %}
+        <div class="appt-card">
+          <h3>{{ b.appointment.full_name }}</h3>
+          <div class="appt-meta">
+            <span><i class="fa fa-ticket"></i> {{ b.booking_id }}</span>
+            <span><i class="fa fa-user-md"></i> {{ b.appointment.department }}</span>
+            <span><i class="fa fa-phone"></i> {{ b.phone_number }}</span>
+            <span><i class="fa fa-calendar"></i> {{ b.date }}</span>
+          </div>
+          <div class="appt-actions">
+            <a href="{% url 'appointment:take-appointment-confirm' b.pk %}" class="btn-appt btn-appt-outline">
+              View Details
+            </a>
+            <a href="{% url 'appointment:take-appointment-pdf' b.pk %}" class="btn-appt btn-appt-primary">
+              Download PDF
+            </a>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="appt-empty">
+        <i class="fa fa-calendar-times-o" style="font-size:28px;"></i>
+        <p style="margin-top:10px;">No appointments yet.</p>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

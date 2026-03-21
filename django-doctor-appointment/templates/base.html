@@ -1,0 +1,401 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="description" content="MediCare Plus – Best Doctors & Medical Care in New Delhi">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  <title>MediCare Plus {% block title %}{% endblock %}</title>
+
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+  <!-- Core stylesheets -->
+  <link rel="stylesheet" href="{% static 'style.css' %}">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+  <style>
+  /* ══════════════════════════════════════════════════════
+     GLOBAL TOKENS
+  ══════════════════════════════════════════════════════ */
+  :root {
+    --teal      : #0b6e6e;
+    --teal2     : #0d9191;
+    --saffron   : #e8600a;
+    --saffron2  : #ff8c38;
+    --ink       : #0f1f1f;
+    --muted     : #6b8585;
+    --cream     : #f4f9f8;
+    --white     : #ffffff;
+    --border    : #d9eaea;
+    --footer-bg : #0a1a1a;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px; color: var(--muted);
+    background: var(--cream);
+    margin: 0; overflow-x: hidden;
+  }
+  /* ── GLOBAL LINK RESET — kill ALL underlines & browser blue ── */
+  a,
+  a:link,
+  a:visited,
+  a:hover,
+  a:focus,
+  a:active {
+    text-decoration: none !important;
+    color: inherit;
+    outline: none;
+  }
+  img { max-width: 100%; height: auto; }
+
+  /* ── BOOTSTRAP 3 OVERRIDE — kill ALL blue inputs/buttons/focus ── */
+  /* input blue border on focus */
+  .footer-newsletter-form input:focus,
+  .footer-area input:focus {
+    border-color: var(--teal2) !important;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    outline: 0 !important;
+  }
+  /* kill Bootstrap's blue .form-control focus glow */
+  .footer-area .form-control:focus {
+    border-color: var(--teal2) !important;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+  }
+  /* kill any button that Bootstrap makes blue/cyan */
+  .footer-area button,
+  .footer-newsletter-form button {
+    background: var(--teal) !important;
+    color: var(--white) !important;
+    border: none !important;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    outline: none !important;
+  }
+  .footer-area button:hover,
+  .footer-newsletter-form button:hover {
+    background: var(--teal2) !important;
+  }
+  /* kill Bootstrap btn-default blue */
+  .footer-area .btn,
+  .footer-area .btn-default,
+  .footer-area .btn:focus,
+  .footer-area .btn:active {
+    background: var(--teal) !important;
+    border-color: var(--teal) !important;
+    color: var(--white) !important;
+    box-shadow: none !important;
+    outline: none !important;
+  }
+
+  /* ══════════════════════════════════════════════════════
+     FOOTER
+  ══════════════════════════════════════════════════════ */
+  .footer-area {
+    background: var(--footer-bg) !important;
+    padding-top: 80px;
+    position: relative; z-index: 1;
+  }
+  /* disable the old gradient overlay pseudo-element */
+  .footer-area.bg-gradient-overlay::after { display: none !important; }
+
+  /* Footer logo — text + icon, no <img> */
+  .footer-logo-wrap {
+    display: inline-flex; align-items: center;
+    gap: 10px; margin-bottom: 20px;
+  }
+  .footer-logo-icon {
+    width: 42px; height: 42px;
+    background: linear-gradient(135deg, var(--teal), var(--teal2));
+    border-radius: 12px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--white); font-size: 18px;
+    box-shadow: 0 3px 12px rgba(11,110,110,.35);
+    line-height: 1;
+  }
+  .footer-logo-icon .fa {
+    display: flex; align-items: center; justify-content: center;
+    line-height: 1;
+  }
+  .footer-logo-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px; font-weight: 700;
+    color: var(--white); line-height: 1; display: block;
+  }
+  .footer-logo-name span { color: var(--saffron2); }
+  .footer-logo-sub {
+    font-size: 10px; font-weight: 600;
+    color: rgba(255,255,255,.40);
+    letter-spacing: .07em; text-transform: uppercase;
+    margin-top: 3px; display: block;
+  }
+
+  /* Widget title */
+  .single-footer-widget .widget-title {
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 700;
+    letter-spacing: .06em; text-transform: uppercase;
+    margin-bottom: 22px; margin-top: 5px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,.10);
+    display: block;
+  }
+  .single-footer-widget p {
+    color: rgba(255,255,255,.60); font-size: 14px; line-height: 1.8;
+  }
+  .single-footer-widget { margin-bottom: 50px; }
+
+  /* Contact block */
+  .footer-contact p {
+    margin-bottom: 8px; font-size: 14px;
+    color: rgba(255,255,255,.60);
+    display: flex; align-items: center; gap: 8px;
+    text-decoration: none !important;
+  }
+  .footer-contact p i {
+    color: var(--saffron2);
+    width: 16px; height: 16px; flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 13px; line-height: 1;
+  }
+  .footer-contact p:last-child { margin-bottom: 0; }
+
+  /* Opening hours */
+  .opening-hours { padding: 0; margin: 0; }
+  .opening-hours li {
+    display: flex; justify-content: space-between; align-items: center;
+    color: rgba(255,255,255,.60); margin-bottom: 11px;
+    font-size: 13px; padding-bottom: 11px;
+    border-bottom: 1px solid rgba(255,255,255,.07);
+    list-style: none;
+  }
+  .opening-hours li:last-child { margin-bottom: 0; border-bottom: none; }
+  .opening-hours li span:last-child { color: var(--saffron2); font-weight: 600; font-size: 12px; }
+
+  /* Quick links */
+  .quick-links { display: flex; flex-wrap: wrap; padding: 0; margin: 0; }
+  .quick-links li { flex: 0 0 50%; max-width: 50%; list-style: none; }
+  .quick-links li a {
+    color: rgba(255,255,255,.60) !important; font-size: 13px;
+    margin-bottom: 12px; display: flex; align-items: center; gap: 6px;
+    transition: color .22s, padding-left .22s;
+    text-decoration: none !important; line-height: 1;
+  }
+  .quick-links li a::before {
+    content: '›'; color: var(--teal2); font-size: 18px;
+    line-height: 1; flex-shrink: 0; display: flex; align-items: center;
+  }
+  .quick-links li a:hover { color: var(--saffron2) !important; padding-left: 4px; }
+
+  /* Newsletter form */
+  .footer-newsletter-form { position: relative; margin-top: 18px; margin-bottom: 24px; }
+  .footer-newsletter-form input {
+    width: 100%; height: 44px;
+    background: rgba(255,255,255,.08);
+    border: 1.5px solid rgba(255,255,255,.16);
+    border-radius: 50px; font-size: 13px;
+    padding: 0 112px 0 18px; color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    transition: border-color .25s;
+  }
+  .footer-newsletter-form input::placeholder { color: rgba(255,255,255,.38); }
+  .footer-newsletter-form input:focus { border-color: var(--teal2); outline: none; }
+  .footer-newsletter-form button {
+    position: absolute; top: 0; right: 0;
+    height: 44px; padding: 0 20px;
+    background: var(--teal); color: var(--white);
+    border: none; border-radius: 0 50px 50px 0;
+    font-size: 14px; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 6px; line-height: 1;
+    transition: background .25s;
+    text-decoration: none !important;
+  }
+  .footer-newsletter-form button .fa {
+    display: inline-flex; align-items: center; justify-content: center;
+    line-height: 1; font-size: 14px;
+  }
+  .footer-newsletter-form button:hover { background: var(--teal2); }
+
+  /* Social icons */
+  .footer-social-info { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+  .footer-social-info a {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: rgba(255,255,255,.07);
+    border: 1px solid rgba(255,255,255,.11);
+    display: inline-flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,.60) !important; font-size: 14px;
+    transition: background .25s, color .25s, border-color .25s;
+    text-decoration: none !important; line-height: 1;
+  }
+  .footer-social-info a .fa {
+    display: inline-flex; align-items: center; justify-content: center;
+    line-height: 1; font-size: 14px;
+  }
+  .footer-social-info a:hover {
+    background: var(--teal); border-color: var(--teal);
+    color: var(--white) !important;
+  }
+
+  /* Copyright */
+  .copywrite-content {
+    border-top: 1px solid rgba(255,255,255,.07);
+    padding: 20px 0; text-align: center; margin-top: 10px;
+  }
+  .copywrite-content p { font-size: 13px; color: rgba(255,255,255,.35); margin-bottom: 0; }
+  .copywrite-content p a {
+    color: var(--teal2) !important;
+    transition: color .22s;
+    text-decoration: none !important;
+  }
+  .copywrite-content p a:hover { color: var(--white) !important; }
+  .copywrite-content .fa-heart-o { color: #e05c5c; }
+
+  /* ══════════════════════════════════════════════════════
+     RESPONSIVE
+  ══════════════════════════════════════════════════════ */
+  @media (max-width: 767px) {
+    .single-footer-widget { margin-bottom: 36px; }
+    .footer-area { padding-top: 56px; }
+  }
+  @media (max-width: 480px) {
+    .quick-links li { flex: 0 0 100%; max-width: 100%; }
+    .footer-newsletter-form input { padding-right: 56px; }
+  }
+  </style>
+
+  {% block styles %}{% endblock %}
+</head>
+
+<body>
+
+  <!-- ██ NAV — loaded from nav.html (all nav code lives there) ██ -->
+  {% include 'nav.html' %}
+
+  <!-- ██ PAGE CONTENT ██ -->
+  {% block content %}{% endblock %}
+
+  <!-- ██ FOOTER ██ -->
+  <footer class="footer-area bg-img bg-gradient-overlay">
+    <div class="container">
+      <div class="row">
+
+        <!-- Brand Widget — text logo, no img -->
+        <div class="col-12 col-sm-6 col-lg-4">
+          <div class="single-footer-widget">
+            <div class="footer-logo-wrap">
+              <div class="footer-logo-icon"><i class="fa fa-heartbeat"></i></div>
+              <div>
+                <span class="footer-logo-name">MediCare<span>+</span></span>
+                <span class="footer-logo-sub">New Delhi</span>
+              </div>
+            </div>
+            <div class="footer-contact">
+              <p><i class="fa fa-map-marker"></i> 14, Connaught Place, New Delhi – 110001</p>
+              <p><i class="fa fa-phone"></i> +91 98100 00000</p>
+              <p><i class="fa fa-envelope"></i> care@medicareplusdelhi.in</p>
+              <p><i class="fa fa-shield"></i> NABH Accredited &middot; Est. 1999</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Opening Hours Widget -->
+        <div class="col-12 col-sm-6 col-lg">
+          <div class="single-footer-widget">
+            <h5 class="widget-title">Opening Hours</h5>
+            <ul class="opening-hours">
+              <li><span>Mon – Wed</span><span>8:00 AM – 9:00 PM</span></li>
+              <li><span>Thu – Fri</span><span>8:00 AM – 9:00 PM</span></li>
+              <li><span>Saturday</span><span>9:00 AM – 7:00 PM</span></li>
+              <li><span>Sunday</span><span>10:00 AM – 5:00 PM</span></li>
+              <li><span>Emergency</span><span>24 / 7</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Quick Links Widget -->
+        <div class="col-12 col-sm-6 col-lg">
+          <div class="single-footer-widget">
+            <h5 class="widget-title">Quick Links</h5>
+            <nav>
+              <ul class="quick-links">
+                <li><a href="#">About Us</a></li>
+                <li><a href="#">FAQs</a></li>
+                <li><a href="#">Contact</a></li>
+                <li><a href="#">Privacy Policy</a></li>
+                <li><a href="#">Health News</a></li>
+                <li><a href="#">Our Advisors</a></li>
+                <li><a href="#">Careers</a></li>
+                <li><a href="#">Find a Doctor</a></li>
+                <li><a href="{% url 'appointment:service' %}">Services</a></li>
+                <li><a href="#">Legal Notice</a></li>
+              </ul>
+            </nav>
+          </div>
+        </div>
+
+        <!-- Newsletter Widget -->
+        <div class="col-12 col-sm-6 col-lg">
+          <div class="single-footer-widget">
+            <h5 class="widget-title">Newsletter</h5>
+            <p>Get weekly health tips, articles &amp; exclusive offers from our specialists.</p>
+            <div class="footer-newsletter-form">
+              <form action="#" method="post">
+                {% csrf_token %}
+                <input type="email" name="nl-email" placeholder="Your Email Address">
+                <button type="submit"><i class="fa fa-paper-plane"></i></button>
+              </form>
+            </div>
+            <div class="footer-social-info">
+              <a href="#" title="Facebook"><i class="fa fa-facebook"></i></a>
+              <a href="#" title="Twitter"><i class="fa fa-twitter"></i></a>
+              <a href="#" title="Instagram"><i class="fa fa-instagram"></i></a>
+              <a href="#" title="LinkedIn"><i class="fa fa-linkedin"></i></a>
+              <a href="#" title="YouTube"><i class="fa fa-youtube-play"></i></a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Copyright -->
+    <div class="container">
+      <div class="row">
+        <div class="col-12">
+          <div class="copywrite-content">
+            <p>
+              Copyright &copy;<script>document.write(new Date().getFullYear());</script>
+              All rights reserved &nbsp;|&nbsp; Made with
+              <i class="fa fa-heart-o"></i> by
+              <a href="https://medicareplusdelhi.in" target="_blank">MediCare Plus, New Delhi</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ██ SCRIPTS ██ -->
+  <script src="{% static 'js/jquery.min.js' %}"></script>
+  <script src="{% static 'js/popper.min.js' %}"></script>
+  <script src="{% static 'js/bootstrap.min.js' %}"></script>
+  <script src="{% static 'js/dento.bundle.js' %}"></script>
+  <script src="{% static 'js/default-assets/active.js' %}"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+  {% block javascripts %}{% endblock %}
+</body>
+
+</html>

@@ -1,0 +1,362 @@
+{% extends 'base.html' %}
+
+{% block title %}Login — MediCare Plus{% endblock %}
+
+{% block styles %}
+<style>
+/* ══════════════════════════════════════════════════════════
+   TOKENS
+══════════════════════════════════════════════════════════ */
+:root {
+  --teal    : #0b6e6e;
+  --teal2   : #0d9191;
+  --teal-dk : #064848;
+  --saffron : #e8600a;
+  --saffron2: #ff8c38;
+  --ink     : #0f1f1f;
+  --muted   : #6b8585;
+  --cream   : #f4f9f8;
+  --white   : #ffffff;
+  --border  : #d9eaea;
+  --red     : #d94040;
+  --ease    : cubic-bezier(.4,0,.2,1);
+}
+
+/* ── PAGE ─────────────────────────────────────────────── */
+.login-page {
+  min-height: 100vh;
+  background: var(--cream);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 16px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* ── CARD ─────────────────────────────────────────────── */
+.login-card {
+  width: 100%;
+  max-width: 480px;
+  background: var(--white);
+  border-radius: 24px;
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 40px rgba(11,110,110,.12);
+  overflow: hidden;
+}
+
+/* ── HEADER ───────────────────────────────────────────── */
+.login-head {
+  background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dk) 100%);
+  padding: 36px 36px 30px;
+  text-align: center;
+  position: relative; overflow: hidden;
+}
+.login-head::before {
+  content: '';
+  position: absolute; top: -60px; right: -60px;
+  width: 200px; height: 200px;
+  background: rgba(255,255,255,.06); border-radius: 50%;
+  pointer-events: none;
+}
+.login-head::after {
+  content: '';
+  position: absolute; bottom: -40px; left: -40px;
+  width: 160px; height: 160px;
+  background: rgba(232,96,10,.10); border-radius: 50%;
+  pointer-events: none;
+}
+.login-logo {
+  width: 64px; height: 64px;
+  background: rgba(255,255,255,.15);
+  border: 1.5px solid rgba(255,255,255,.28);
+  border-radius: 18px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; color: #fff;
+  margin: 0 auto 16px;
+  position: relative; z-index: 1;
+}
+.login-head h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 30px; font-weight: 700;
+  color: #fff; margin: 0 0 6px; line-height: 1.2;
+  position: relative; z-index: 1;
+}
+.login-head p {
+  font-size: 13px; color: rgba(255,255,255,.68);
+  margin: 0; position: relative; z-index: 1;
+}
+
+/* ── BODY ─────────────────────────────────────────────── */
+.login-body { padding: 32px 36px 36px; }
+
+/* non-field / global errors */
+.login-error-box {
+  display: flex; align-items: flex-start; gap: 10px;
+  background: rgba(217,64,64,.06);
+  border: 1px solid rgba(217,64,64,.22);
+  border-radius: 12px; padding: 12px 16px;
+  margin-bottom: 22px;
+  font-size: 13px; color: var(--red); line-height: 1.5;
+}
+.login-error-box .fa { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+
+/* ── FORM FIELDS ──────────────────────────────────────── */
+.login-form { display: flex; flex-direction: column; gap: 0; }
+
+/* Django renders each field as <p> */
+.login-form p { margin: 0 0 18px; }
+.login-form p:last-of-type { margin-bottom: 0; }
+
+/* labels */
+.login-form label {
+  display: block;
+  font-size: 12px; font-weight: 700;
+  color: var(--teal); text-transform: uppercase;
+  letter-spacing: .06em; margin-bottom: 7px;
+}
+.login-form label abbr { text-decoration: none; color: var(--saffron); margin-left: 2px; }
+
+/* inputs */
+.login-form input[type="text"],
+.login-form input[type="email"],
+.login-form input[type="password"] {
+  width: 100%;
+  padding: 13px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px; color: var(--ink);
+  background: var(--cream);
+  outline: none;
+  transition: border-color .22s var(--ease), box-shadow .22s, background .22s;
+  -webkit-appearance: none; appearance: none;
+  box-sizing: border-box;
+}
+.login-form input[type="text"]:focus,
+.login-form input[type="email"]:focus,
+.login-form input[type="password"]:focus {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(11,110,110,.10);
+  background: var(--white);
+}
+.login-form input::placeholder { color: #a8c4c4; }
+
+/* per-field error */
+.login-form ul.errorlist {
+  list-style: none; margin: 6px 0 0; padding: 0;
+}
+.login-form ul.errorlist li {
+  font-size: 12px; color: var(--red);
+  display: flex; align-items: center; gap: 5px;
+  margin-top: 3px;
+}
+.login-form ul.errorlist li::before { content: '⚠'; font-size: 11px; }
+
+/* help text */
+.login-form .helptext,
+.login-form span.helptext {
+  display: block; font-size: 11.5px;
+  color: var(--muted); margin-top: 5px; line-height: 1.5;
+}
+
+/* ── REMEMBER / FORGOT ROW ────────────────────────────── */
+.login-options {
+  display: flex; align-items: center;
+  justify-content: space-between; flex-wrap: wrap; gap: 8px;
+  margin: 4px 0 22px;
+}
+.login-remember {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; color: var(--muted); cursor: pointer;
+}
+.login-remember input[type="checkbox"] {
+  width: 15px; height: 15px;
+  accent-color: var(--teal); cursor: pointer;
+  flex-shrink: 0;
+}
+.login-forgot {
+  font-size: 13px; font-weight: 600;
+  color: var(--teal) !important;
+  text-decoration: none !important;
+  transition: color .22s;
+}
+.login-forgot:hover { color: var(--saffron) !important; }
+
+/* ── SUBMIT ───────────────────────────────────────────── */
+.btn-login-submit {
+  width: 100%;
+  display: flex; align-items: center; justify-content: center; gap: 9px;
+  padding: 14px;
+  border-radius: 50px;
+  background: var(--teal); color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 15px; font-weight: 700;
+  border: none; cursor: pointer;
+  text-transform: uppercase; letter-spacing: .04em;
+  box-shadow: 0 4px 18px rgba(11,110,110,.30);
+  transition: background .22s, transform .22s, box-shadow .22s;
+  margin-bottom: 16px;
+}
+.btn-login-submit:hover {
+  background: var(--teal2); transform: translateY(-2px);
+  box-shadow: 0 8px 26px rgba(11,110,110,.36);
+}
+.btn-login-submit:active { transform: translateY(0); }
+
+/* ── DIVIDER ──────────────────────────────────────────── */
+.login-or {
+  display: flex; align-items: center; gap: 12px;
+  margin: 6px 0 20px;
+}
+.login-or span {
+  font-size: 12px; font-weight: 600; color: var(--muted);
+  text-transform: uppercase; letter-spacing: .06em; white-space: nowrap;
+}
+.login-or::before, .login-or::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+/* ── REGISTER OPTIONS ─────────────────────────────────── */
+.login-register-row {
+  display: flex; gap: 10px;
+}
+.btn-login-reg {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 700;
+  border: 1.5px solid var(--border);
+  text-decoration: none !important;
+  transition: border-color .22s, background .22s, color .22s;
+  text-align: center;
+}
+.btn-login-reg-doctor {
+  color: var(--teal) !important;
+  border-color: var(--teal);
+  background: rgba(11,110,110,.04);
+}
+.btn-login-reg-doctor:hover {
+  background: var(--teal); color: #fff !important;
+}
+.btn-login-reg-patient {
+  color: var(--saffron) !important;
+  border-color: var(--saffron);
+  background: rgba(232,96,10,.04);
+}
+.btn-login-reg-patient:hover {
+  background: var(--saffron); color: #fff !important;
+}
+
+/* ── BOTTOM PROMPT ────────────────────────────────────── */
+.login-prompt {
+  text-align: center; margin-top: 22px;
+  padding-top: 20px; border-top: 1px solid var(--border);
+  font-size: 13px; color: var(--muted);
+}
+.login-prompt a {
+  font-weight: 700;
+  text-decoration: none !important; transition: color .22s;
+}
+.login-prompt a.doctor-link { color: var(--teal) !important; }
+.login-prompt a.doctor-link:hover { color: var(--teal2) !important; }
+.login-prompt a.patient-link { color: var(--saffron) !important; }
+.login-prompt a.patient-link:hover { color: var(--saffron2) !important; }
+
+/* ══════════════════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════════════════ */
+@media (max-width: 520px) {
+  .login-card { border-radius: 18px; }
+  .login-head { padding: 28px 22px 24px; }
+  .login-logo { width: 54px; height: 54px; font-size: 24px; }
+  .login-head h2 { font-size: 26px; }
+  .login-body { padding: 22px 20px 28px; }
+  .login-register-row { flex-direction: column; }
+}
+@media (max-width: 380px) {
+  .login-page { padding: 24px 10px; }
+  .login-head { padding: 22px 16px 20px; }
+  .login-body { padding: 18px 14px 22px; }
+  .login-options { flex-direction: column; align-items: flex-start; }
+}
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="login-page">
+  <div class="login-card">
+
+    <!-- Header -->
+    <div class="login-head">
+      <div class="login-logo">
+        <i class="fa fa-heartbeat"></i>
+      </div>
+      <h2>Welcome Back</h2>
+      <p>Sign in to access your MediCare Plus account</p>
+    </div>
+
+    <!-- Body -->
+    <div class="login-body">
+
+      <!-- Global / non-field errors -->
+      {% if form.non_field_errors %}
+      <div class="login-error-box">
+        <i class="fa fa-exclamation-circle"></i>
+        <div>
+          {% for error in form.non_field_errors %}
+          <div>{{ error }}</div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Form -->
+      <form action="" method="POST" class="login-form" novalidate>
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <!-- Remember me + Forgot password -->
+        <div class="login-options">
+          <label class="login-remember">
+            <input type="checkbox" name="remember_me">
+            Remember me
+          </label>
+          <a href="#" class="login-forgot">Forgot password?</a>
+        </div>
+
+        <!-- Submit -->
+        <button type="submit" class="btn-login-submit">
+          <i class="fa fa-sign-in"></i> Sign In
+        </button>
+
+      </form>
+
+      <!-- OR divider -->
+      <div class="login-or"><span>New to MediCare Plus?</span></div>
+
+      <!-- Register buttons -->
+      <div class="login-register-row">
+        <a href="{% url 'accounts:doctor-register' %}" class="btn-login-reg btn-login-reg-doctor">
+          <i class="fa fa-user-md"></i> Register as Doctor
+        </a>
+        <a href="{% url 'accounts:patient-register' %}" class="btn-login-reg btn-login-reg-patient">
+          <i class="fa fa-user"></i> Register as Patient
+        </a>
+      </div>
+
+      <!-- Bottom prompt -->
+      <div class="login-prompt">
+        Register as a
+        <a href="{% url 'accounts:doctor-register' %}" class="doctor-link">Doctor</a>
+        &nbsp;or&nbsp;
+        <a href="{% url 'accounts:patient-register' %}" class="patient-link">Patient</a>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

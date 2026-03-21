@@ -1,0 +1,528 @@
+{% extends 'base.html' %}
+
+{% block title %}Patient Registration{% endblock %}
+
+{% block styles %}
+<style>
+/* ══════════════════════════════════════════════════════════
+   TOKENS
+══════════════════════════════════════════════════════════ */
+:root {
+  --teal    : #0b6e6e;
+  --teal2   : #0d9191;
+  --teal-dk : #064848;
+  --saffron : #e8600a;
+  --saffron2: #ff8c38;
+  --ink     : #0f1f1f;
+  --muted   : #6b8585;
+  --cream   : #f4f9f8;
+  --white   : #ffffff;
+  --border  : #d9eaea;
+  --red     : #d94040;
+  --ease    : cubic-bezier(.4,0,.2,1);
+}
+
+/* ── PAGE ─────────────────────────────────────────────── */
+.pat-reg-page {
+  min-height: 100vh;
+  background: var(--cream);
+  padding: 48px 16px 72px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* ── CARD ─────────────────────────────────────────────── */
+.pat-reg-card {
+  max-width: 680px;
+  margin: 0 auto;
+  background: var(--white);
+  border-radius: 24px;
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 40px rgba(11,110,110,.10);
+  overflow: hidden;
+}
+
+/* ── HEADER ───────────────────────────────────────────── */
+.pat-reg-head {
+  background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dk) 100%);
+  padding: 30px 36px 26px;
+  position: relative; overflow: hidden;
+}
+.pat-reg-head::before {
+  content: '';
+  position: absolute; top: -50px; right: -50px;
+  width: 180px; height: 180px;
+  background: rgba(255,255,255,.06); border-radius: 50%;
+  pointer-events: none;
+}
+.pat-reg-head::after {
+  content: '';
+  position: absolute; bottom: -30px; left: 35%;
+  width: 140px; height: 140px;
+  background: rgba(232,96,10,.10); border-radius: 50%;
+  pointer-events: none;
+}
+.pat-reg-head-inner {
+  display: flex; align-items: center; gap: 16px;
+  position: relative; z-index: 1;
+}
+.pat-reg-head-icon {
+  width: 52px; height: 52px;
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 14px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; color: #fff;
+}
+.pat-reg-head-text h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px; font-weight: 700;
+  color: #fff; margin: 0 0 4px; line-height: 1.2;
+}
+.pat-reg-head-text p {
+  font-size: 13px; color: rgba(255,255,255,.68); margin: 0;
+}
+
+/* step dots */
+.pat-reg-steps {
+  display: flex; align-items: center; gap: 6px;
+  margin-top: 18px; position: relative; z-index: 1;
+}
+.pat-step-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: rgba(255,255,255,.28);
+}
+.pat-step-dot.on {
+  width: 24px; border-radius: 4px;
+  background: var(--saffron2);
+}
+
+/* ── BODY ─────────────────────────────────────────────── */
+.pat-reg-body { padding: 30px 36px 36px; }
+
+/* info strip */
+.pat-reg-info {
+  display: flex; align-items: flex-start; gap: 10px;
+  background: rgba(11,110,110,.06);
+  border: 1px solid rgba(11,110,110,.15);
+  border-radius: 12px; padding: 12px 16px;
+  margin-bottom: 24px;
+  font-size: 13px; color: var(--teal); line-height: 1.5;
+}
+.pat-reg-info .fa { font-size: 14px; flex-shrink: 0; margin-top: 2px; }
+
+/* ── FORM FIELD WRAPPER ───────────────────────────────── */
+.pat-field {
+  margin-bottom: 18px;
+}
+.pat-field:last-of-type { margin-bottom: 0; }
+
+/* label */
+.pat-label {
+  display: block;
+  font-size: 12px; font-weight: 700;
+  color: var(--teal);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 7px;
+}
+.pat-label .req { color: var(--saffron); margin-left: 2px; }
+
+/* text / email / password / number / tel inputs */
+.pat-input {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; color: var(--ink);
+  background: var(--cream);
+  outline: none;
+  transition: border-color .22s var(--ease), box-shadow .22s, background .22s;
+  -webkit-appearance: none; appearance: none;
+  box-sizing: border-box;
+}
+.pat-input:focus {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(11,110,110,.10);
+  background: var(--white);
+}
+.pat-input::placeholder { color: #a8c4c4; }
+
+/* select */
+.pat-select {
+  width: 100%;
+  padding: 12px 38px 12px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; color: var(--ink);
+  background: var(--cream);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%230b6e6e' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  outline: none; cursor: pointer;
+  -webkit-appearance: none; appearance: none;
+  box-sizing: border-box;
+  transition: border-color .22s, box-shadow .22s, background .22s;
+}
+.pat-select:focus {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(11,110,110,.10);
+  background-color: var(--white);
+}
+
+/* textarea */
+.pat-textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; color: var(--ink);
+  background: var(--cream);
+  outline: none; resize: vertical; min-height: 90px;
+  line-height: 1.65;
+  transition: border-color .22s, box-shadow .22s, background .22s;
+  box-sizing: border-box;
+}
+.pat-textarea:focus {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(11,110,110,.10);
+  background: var(--white);
+}
+
+/* ── GENDER RADIO — custom styled ─────────────────────── */
+.gender-label {
+  display: block;
+  font-size: 12px; font-weight: 700;
+  color: var(--teal); text-transform: uppercase;
+  letter-spacing: .06em; margin-bottom: 10px;
+}
+.gender-options {
+  display: flex; gap: 12px; flex-wrap: wrap;
+}
+.gender-option {
+  display: flex; align-items: center; gap: 0;
+  cursor: pointer; flex: 1; min-width: 100px;
+}
+/* hide native radio */
+.gender-option input[type="radio"] {
+  position: absolute; opacity: 0; width: 0; height: 0;
+}
+.gender-option-box {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%;
+  padding: 12px 18px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  background: var(--cream);
+  cursor: pointer;
+  transition: border-color .22s, background .22s, box-shadow .22s;
+  font-size: 14px; font-weight: 600; color: var(--muted);
+  user-select: none;
+}
+.gender-option-box .gender-icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: rgba(11,110,110,.08);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; color: var(--teal);
+  flex-shrink: 0;
+  transition: background .22s, color .22s;
+}
+/* checked state */
+.gender-option input[type="radio"]:checked + .gender-option-box {
+  border-color: var(--teal);
+  background: rgba(11,110,110,.06);
+  box-shadow: 0 0 0 3px rgba(11,110,110,.10);
+  color: var(--teal);
+}
+.gender-option input[type="radio"]:checked + .gender-option-box .gender-icon {
+  background: var(--teal); color: #fff;
+}
+/* hover */
+.gender-option-box:hover {
+  border-color: var(--teal2);
+  background: rgba(11,110,110,.04);
+}
+
+/* ── ERROR ────────────────────────────────────────────── */
+.pat-error {
+  font-size: 12px; color: var(--red);
+  display: flex; align-items: center; gap: 5px;
+  margin-top: 5px;
+}
+.pat-error::before { content: '⚠'; font-size: 11px; }
+
+/* non-field errors */
+.pat-non-field-errors {
+  background: rgba(217,64,64,.06);
+  border: 1px solid rgba(217,64,64,.20);
+  border-radius: 10px; padding: 12px 16px;
+  margin-bottom: 20px; list-style: none;
+}
+.pat-non-field-errors li {
+  font-size: 13px; color: var(--red);
+  display: flex; align-items: center; gap: 7px;
+}
+.pat-non-field-errors li::before { content: '⚠'; }
+
+/* help text */
+.pat-help { font-size: 11.5px; color: var(--muted); margin-top: 5px; line-height: 1.5; display: block; }
+
+/* ── DIVIDER ──────────────────────────────────────────── */
+.pat-reg-divider {
+  display: flex; align-items: center; gap: 12px;
+  margin: 26px 0 20px;
+}
+.pat-reg-divider span {
+  font-size: 11px; font-weight: 700;
+  color: var(--muted); text-transform: uppercase;
+  letter-spacing: .07em; white-space: nowrap;
+}
+.pat-reg-divider::before,
+.pat-reg-divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+/* ── SUBMIT ROW ───────────────────────────────────────── */
+.pat-reg-submit-wrap {
+  margin-top: 28px;
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+.btn-pat-reg {
+  display: inline-flex; align-items: center;
+  justify-content: center; gap: 8px;
+  padding: 13px 36px; border-radius: 50px;
+  background: var(--teal); color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; font-weight: 700;
+  border: none; cursor: pointer;
+  text-transform: uppercase; letter-spacing: .04em;
+  box-shadow: 0 4px 16px rgba(11,110,110,.28);
+  transition: background .22s, transform .22s, box-shadow .22s;
+}
+.btn-pat-reg:hover {
+  background: var(--teal2); transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(11,110,110,.34);
+}
+.btn-pat-reg:active { transform: translateY(0); }
+
+.btn-pat-login {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 13px 24px; border-radius: 50px;
+  background: transparent; color: var(--muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; font-weight: 600;
+  border: 1.5px solid var(--border); cursor: pointer;
+  text-decoration: none !important;
+  transition: border-color .22s, color .22s;
+}
+.btn-pat-login:hover { border-color: var(--teal); color: var(--teal); }
+
+/* login prompt */
+.pat-reg-login-prompt {
+  text-align: center; margin-top: 24px;
+  padding-top: 20px; border-top: 1px solid var(--border);
+  font-size: 13px; color: var(--muted);
+}
+.pat-reg-login-prompt a {
+  color: var(--teal) !important; font-weight: 700;
+  text-decoration: none !important; transition: color .22s;
+}
+.pat-reg-login-prompt a:hover { color: var(--saffron) !important; }
+
+/* ══════════════════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════════════════ */
+@media (max-width: 720px) {
+  .pat-reg-card { border-radius: 18px; }
+  .pat-reg-head { padding: 22px 20px 18px; }
+  .pat-reg-head-icon { width: 44px; height: 44px; font-size: 20px; }
+  .pat-reg-head-text h2 { font-size: 21px; }
+  .pat-reg-body { padding: 20px 18px 28px; }
+  .pat-reg-submit-wrap { flex-direction: column; align-items: stretch; }
+  .btn-pat-reg,
+  .btn-pat-login { justify-content: center; width: 100%; }
+  .gender-options { flex-direction: column; }
+  .gender-option { min-width: unset; }
+}
+@media (max-width: 420px) {
+  .pat-reg-page { padding: 20px 10px 52px; }
+  .pat-reg-head { padding: 18px 14px 16px; }
+  .pat-reg-body { padding: 16px 14px 22px; }
+  .pat-reg-head-text h2 { font-size: 19px; }
+}
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="pat-reg-page">
+  <div class="pat-reg-card">
+
+    <!-- Header -->
+    <div class="pat-reg-head">
+      <div class="pat-reg-head-inner">
+        <div class="pat-reg-head-icon">
+          <i class="fa fa-user-plus"></i>
+        </div>
+        <div class="pat-reg-head-text">
+          <h2>Patient Registration</h2>
+          <p>Create your account and access Delhi's best doctors.</p>
+        </div>
+      </div>
+      <div class="pat-reg-steps">
+        <div class="pat-step-dot on"></div>
+        <div class="pat-step-dot"></div>
+        <div class="pat-step-dot"></div>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="pat-reg-body">
+
+      <!-- Info strip -->
+      <div class="pat-reg-info">
+        <i class="fa fa-shield"></i>
+        <span>
+          Your information is secure and private.
+          Fields marked <strong style="color:var(--saffron);margin:0 3px;">*</strong> are required.
+        </span>
+      </div>
+
+      <!-- Non-field errors -->
+      {% if form.non_field_errors %}
+      <ul class="pat-non-field-errors">
+        {% for error in form.non_field_errors %}
+        <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
+      <!-- Form -->
+      <form action="" method="POST" class="pat-reg-form" novalidate>
+        {% csrf_token %}
+
+        {% for field in form %}
+
+          {% if field.name == 'gender' %}
+          <!-- ── CUSTOM GENDER RADIO ── -->
+          <div class="pat-field">
+            <span class="gender-label">
+              Gender
+              {% if field.field.required %}<span class="req">*</span>{% endif %}
+            </span>
+            <div class="gender-options">
+
+              <label class="gender-option">
+                <input type="radio" name="gender" value="male"
+                  {% if field.value == 'male' %}checked{% endif %}>
+                <div class="gender-option-box">
+                  <span class="gender-icon"><i class="fa fa-mars"></i></span>
+                  Male
+                </div>
+              </label>
+
+              <label class="gender-option">
+                <input type="radio" name="gender" value="female"
+                  {% if field.value == 'female' %}checked{% endif %}>
+                <div class="gender-option-box">
+                  <span class="gender-icon"><i class="fa fa-venus"></i></span>
+                  Female
+                </div>
+              </label>
+
+              <label class="gender-option">
+                <input type="radio" name="gender" value="other"
+                  {% if field.value == 'other' %}checked{% endif %}>
+                <div class="gender-option-box">
+                  <span class="gender-icon"><i class="fa fa-genderless"></i></span>
+                  Other
+                </div>
+              </label>
+
+            </div>
+            {% if field.errors %}
+              {% for error in field.errors %}
+                <div class="pat-error">{{ error }}</div>
+              {% endfor %}
+            {% endif %}
+          </div>
+
+          {% else %}
+          <!-- ── STANDARD FIELD ── -->
+          <div class="pat-field">
+            <label class="pat-label" for="id_{{ field.name }}">
+              {{ field.label }}
+              {% if field.field.required %}<span class="req">*</span>{% endif %}
+            </label>
+
+            {% if field.field.widget.input_type == 'select' or 'Select' in field.field.widget|stringformat:"s" %}
+              {{ field }}
+            {% elif field.field.widget.input_type == 'textarea' %}
+              <textarea
+                class="pat-textarea"
+                name="{{ field.name }}"
+                id="id_{{ field.name }}"
+                placeholder="{{ field.field.widget.attrs.placeholder|default:'' }}"
+                {% if field.field.required %}required{% endif %}
+              >{{ field.value|default:'' }}</textarea>
+            {% elif field.field.widget.input_type == 'checkbox' %}
+              <label style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--ink);cursor:pointer;">
+                <input
+                  type="checkbox"
+                  name="{{ field.name }}"
+                  id="id_{{ field.name }}"
+                  style="width:17px;height:17px;accent-color:var(--teal);cursor:pointer;"
+                  {% if field.value %}checked{% endif %}>
+                {{ field.label }}
+              </label>
+            {% else %}
+              <input
+                type="{{ field.field.widget.input_type }}"
+                class="pat-input"
+                name="{{ field.name }}"
+                id="id_{{ field.name }}"
+                value="{{ field.value|default:'' }}"
+                placeholder="{{ field.field.widget.attrs.placeholder|default:'' }}"
+                {% if field.field.required %}required{% endif %}
+                autocomplete="{% if field.name == 'password' or field.name == 'password1' %}new-password{% elif field.name == 'password2' %}new-password{% elif field.name == 'email' %}email{% else %}on{% endif %}">
+            {% endif %}
+
+            {% if field.help_text %}
+              <span class="pat-help">{{ field.help_text }}</span>
+            {% endif %}
+
+            {% if field.errors %}
+              {% for error in field.errors %}
+                <div class="pat-error">{{ error }}</div>
+              {% endfor %}
+            {% endif %}
+          </div>
+          {% endif %}
+
+        {% endfor %}
+
+        <div class="pat-reg-divider"><span>Create your account</span></div>
+
+        <div class="pat-reg-submit-wrap">
+          <button type="submit" class="btn-pat-reg">
+            <i class="fa fa-user-plus"></i> Register Now
+          </button>
+          <a href="{% url 'accounts:login' %}" class="btn-pat-login">
+            <i class="fa fa-sign-in"></i> Already registered?
+          </a>
+        </div>
+
+      </form>
+
+      <!-- Login prompt -->
+      <div class="pat-reg-login-prompt">
+        Already have an account?
+        <a href="{% url 'accounts:login' %}">Sign in here</a>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

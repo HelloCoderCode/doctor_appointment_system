@@ -1,0 +1,425 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Appointments — MediCare Plus{% endblock %}
+
+{% block styles %}
+<style>
+/* ══════════════════════════════════════════════════════════
+   TOKENS
+══════════════════════════════════════════════════════════ */
+:root {
+  --teal    : #0b6e6e;
+  --teal2   : #0d9191;
+  --teal-dk : #064848;
+  --saffron : #e8600a;
+  --saffron2: #ff8c38;
+  --ink     : #0f1f1f;
+  --muted   : #6b8585;
+  --cream   : #f4f9f8;
+  --white   : #ffffff;
+  --border  : #d9eaea;
+  --red     : #d94040;
+  --ease    : cubic-bezier(.4,0,.2,1);
+}
+
+/* ── PAGE ─────────────────────────────────────────────── */
+.appt-list-page {
+  min-height: 100vh;
+  background: var(--cream);
+  padding: 48px 16px 72px;
+  font-family: 'DM Sans', sans-serif;
+}
+.appt-list-wrap { max-width: 1200px; margin: 0 auto; }
+
+/* ── PAGE HEADER ──────────────────────────────────────── */
+.appt-list-head {
+  display: flex; align-items: flex-end;
+  justify-content: space-between; flex-wrap: wrap;
+  gap: 16px; margin-bottom: 36px;
+}
+.appt-list-head-left {}
+.appt-list-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(11,110,110,.09); color: var(--teal);
+  font-size: 11px; font-weight: 700; letter-spacing: .07em;
+  text-transform: uppercase; padding: 5px 14px;
+  border-radius: 50px; border: 1px solid rgba(11,110,110,.18);
+  margin-bottom: 10px;
+}
+.appt-list-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(26px, 4vw, 40px);
+  font-weight: 700; color: var(--ink); line-height: 1.18;
+  margin-bottom: 4px;
+}
+.appt-list-title span { color: var(--teal); }
+.appt-list-sub {
+  font-size: 14px; color: var(--muted); line-height: 1.6;
+}
+.btn-appt-new {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 12px 24px; border-radius: 50px;
+  background: var(--teal); color: #fff !important;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .04em;
+  text-decoration: none !important; white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(11,110,110,.26);
+  transition: background .22s, transform .22s;
+}
+.btn-appt-new:hover { background: var(--teal2); transform: translateY(-2px); }
+
+/* ── STATS ROW ────────────────────────────────────────── */
+.appt-stats-row {
+  display: flex; gap: 14px; flex-wrap: wrap;
+  margin-bottom: 32px;
+}
+.appt-stat-pill {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 14px; padding: 14px 18px;
+  flex: 1; min-width: 130px;
+  box-shadow: 0 2px 12px rgba(11,110,110,.06);
+}
+.appt-stat-icon {
+  width: 38px; height: 38px; border-radius: 10px;
+  background: rgba(11,110,110,.09);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: var(--teal); flex-shrink: 0;
+}
+.appt-stat-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px; font-weight: 700; color: var(--ink); line-height: 1;
+}
+.appt-stat-lbl { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* ── GRID ─────────────────────────────────────────────── */
+.appt-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+/* ── APPOINTMENT CARD ─────────────────────────────────── */
+.appt-card {
+  background: var(--white);
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  transition: transform .28s var(--ease), box-shadow .28s var(--ease);
+  display: flex; flex-direction: column;
+}
+.appt-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 52px rgba(11,110,110,.14);
+}
+
+/* image */
+.appt-card-img {
+  position: relative; overflow: hidden;
+  height: 220px;
+  background: linear-gradient(135deg, #c8e6e4, #a0d4d0);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.appt-card-img img {
+  width: 100%; height: 100%; object-fit: contain;
+  transition: transform .4s var(--ease);
+  background: #e9f3f2;
+}
+.appt-card:hover .appt-card-img img { transform: scale(1.02); }
+.appt-card-img-fallback {
+  font-size: 52px; color: var(--teal); opacity: .5;
+}
+
+/* status badge */
+.appt-status-badge {
+  position: absolute; top: 12px; left: 12px;
+  background: #22c55e; color: #fff;
+  font-size: 10px; font-weight: 700;
+  padding: 4px 10px; border-radius: 50px;
+  display: flex; align-items: center; gap: 5px;
+  letter-spacing: .04em; text-transform: uppercase;
+}
+.appt-status-badge::before {
+  content: ''; width: 6px; height: 6px;
+  background: #fff; border-radius: 50%;
+  animation: pulse 1.4s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:.4} }
+
+/* card id badge */
+.appt-id-badge {
+  position: absolute; top: 12px; right: 12px;
+  background: rgba(0,0,0,.45);
+  backdrop-filter: blur(6px);
+  color: #fff; font-size: 10px; font-weight: 700;
+  padding: 3px 10px; border-radius: 50px;
+  letter-spacing: .04em;
+}
+
+/* body */
+.appt-card-body {
+  padding: 18px 20px 20px;
+  flex: 1; display: flex; flex-direction: column;
+}
+.appt-card-dept {
+  font-size: 11px; font-weight: 700; color: var(--saffron);
+  text-transform: uppercase; letter-spacing: .07em; margin-bottom: 5px;
+}
+.appt-card-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px; font-weight: 700; color: var(--ink);
+  margin-bottom: 3px; line-height: 1.2;
+}
+.appt-card-qual {
+  font-size: 12px; color: var(--muted); margin-bottom: 14px;
+}
+
+/* meta rows */
+.appt-card-meta {
+  display: flex; flex-direction: column; gap: 7px;
+  margin-bottom: 16px; flex: 1;
+}
+.appt-card-meta-item {
+  display: flex; align-items: flex-start; gap: 8px;
+  font-size: 12px; color: var(--muted); line-height: 1.4;
+}
+.appt-card-meta-item .fa {
+  color: var(--teal); font-size: 12px; flex-shrink: 0;
+  width: 14px; height: 16px;
+  display: inline-flex; align-items: center; justify-content: center;
+  margin-top: 1px;
+}
+
+/* divider */
+.appt-card-divider {
+  height: 1px; background: var(--border); margin-bottom: 14px;
+}
+
+/* action row */
+.appt-card-actions {
+  display: flex; gap: 8px;
+}
+.btn-appt-view {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 10px 12px; border-radius: 50px;
+  background: rgba(11,110,110,.08); color: var(--teal) !important;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px; font-weight: 700;
+  border: 1px solid rgba(11,110,110,.18);
+  text-decoration: none !important;
+  transition: background .22s, color .22s;
+}
+.btn-appt-view:hover {
+  background: var(--teal); color: #fff !important;
+}
+.btn-appt-edit {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 10px 12px; border-radius: 50px;
+  background: rgba(232,96,10,.10); color: var(--saffron) !important;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px; font-weight: 700;
+  border: 1px solid rgba(232,96,10,.28);
+  text-decoration: none !important;
+  transition: background .22s, color .22s;
+}
+.btn-appt-edit:hover { background: var(--saffron); color: #fff !important; }
+.btn-appt-delete {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 10px 14px; border-radius: 50px;
+  background: rgba(217,64,64,.07); color: var(--red) !important;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px; font-weight: 700;
+  border: 1px solid rgba(217,64,64,.22);
+  text-decoration: none !important;
+  transition: background .22s, color .22s;
+  white-space: nowrap;
+}
+.btn-appt-delete:hover {
+  background: var(--red); color: #fff !important;
+}
+
+/* ── EMPTY STATE ──────────────────────────────────────── */
+.appt-empty {
+  text-align: center; padding: 72px 24px;
+  grid-column: 1 / -1;
+}
+.appt-empty-icon {
+  width: 80px; height: 80px; border-radius: 22px;
+  background: rgba(11,110,110,.08);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px; color: var(--teal);
+  margin: 0 auto 20px;
+}
+.appt-empty h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px; font-weight: 700; color: var(--ink);
+  margin-bottom: 8px;
+}
+.appt-empty p {
+  font-size: 15px; color: var(--muted);
+  max-width: 380px; margin: 0 auto 24px; line-height: 1.7;
+}
+.btn-appt-empty {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 13px 28px; border-radius: 50px;
+  background: var(--teal); color: #fff !important;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; font-weight: 700;
+  text-decoration: none !important;
+  box-shadow: 0 4px 16px rgba(11,110,110,.26);
+  transition: background .22s, transform .22s;
+}
+.btn-appt-empty:hover { background: var(--teal2); transform: translateY(-2px); }
+
+/* ══════════════════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════════════════ */
+@media (max-width: 1000px) {
+  .appt-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+  .appt-list-head { flex-direction: column; align-items: flex-start; }
+  .btn-appt-new { width: 100%; justify-content: center; }
+  .appt-grid { grid-template-columns: 1fr; gap: 16px; }
+  .appt-stats-row { gap: 10px; }
+  .appt-stat-pill { min-width: 0; }
+}
+@media (max-width: 420px) {
+  .appt-list-page { padding: 28px 12px 52px; }
+  .appt-card-img { height: 180px; }
+  .appt-stats-row { flex-direction: column; }
+}
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="appt-list-page">
+  <div class="appt-list-wrap">
+
+    <!-- Page Header -->
+    <div class="appt-list-head">
+      <div class="appt-list-head-left">
+        <div class="appt-list-chip">
+          <i class="fa fa-calendar"></i> Appointments
+        </div>
+        <h1 class="appt-list-title">
+          <span>{{ request.user.first_name }}'s</span> Appointments
+        </h1>
+        <p class="appt-list-sub">Manage and review all your scheduled appointments below.</p>
+      </div>
+      <a href="{% url 'appointment:doctor-appointment-create' %}" class="btn-appt-new">
+        <i class="fa fa-plus"></i> New Appointment
+      </a>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="appt-stats-row">
+      <div class="appt-stat-pill">
+        <div class="appt-stat-icon"><i class="fa fa-calendar-check-o"></i></div>
+        <div>
+          <div class="appt-stat-num">{{ appointment|length }}</div>
+          <div class="appt-stat-lbl">Total Appointments</div>
+        </div>
+      </div>
+      <div class="appt-stat-pill">
+        <div class="appt-stat-icon"><i class="fa fa-user-md"></i></div>
+        <div>
+          <div class="appt-stat-num">{{ appointment|length }}</div>
+          <div class="appt-stat-lbl">Active Doctors</div>
+        </div>
+      </div>
+      <div class="appt-stat-pill">
+        <div class="appt-stat-icon"><i class="fa fa-map-marker"></i></div>
+        <div>
+          <div class="appt-stat-num">New Delhi</div>
+          <div class="appt-stat-lbl">Location</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Appointments Grid -->
+    <div class="appt-grid">
+
+      {% for apt in appointment %}
+      <div class="appt-card">
+
+        <!-- Image -->
+        <div class="appt-card-img">
+          {% if apt.image %}
+            <img src="{{ apt.image.url }}" alt="Dr. {{ apt.full_name }}">
+          {% else %}
+            <div class="appt-card-img-fallback">
+              <i class="fa fa-user-md"></i>
+            </div>
+          {% endif %}
+          <div class="appt-status-badge">Active</div>
+          <div class="appt-id-badge">#{{ forloop.counter }}</div>
+        </div>
+
+        <!-- Body -->
+        <div class="appt-card-body">
+          <div class="appt-card-dept">{{ apt.department }}</div>
+          <div class="appt-card-name">Dr. {{ apt.full_name }}</div>
+          <div class="appt-card-qual">
+            {{ apt.qualification_name }}{% if apt.institute_name %},
+            {{ apt.institute_name }}{% endif %}
+          </div>
+
+          <div class="appt-card-meta">
+            <div class="appt-card-meta-item">
+              <i class="fa fa-clock-o"></i>
+              {{ apt.start_time }} – {{ apt.end_time }}
+            </div>
+            <div class="appt-card-meta-item">
+              <i class="fa fa-hospital-o"></i>
+              {{ apt.hospital_name }}
+            </div>
+            <div class="appt-card-meta-item">
+              <i class="fa fa-map-marker"></i>
+              {{ apt.location }}, New Delhi
+            </div>
+          </div>
+
+          <div class="appt-card-divider"></div>
+
+          <!-- Actions -->
+          <div class="appt-card-actions">
+            <a href="{% url 'appointment:patient-list' %}" class="btn-appt-view">
+              <i class="fa fa-eye"></i> View Patients
+            </a>
+            <a href="{% url 'appointment:doctor-appointment-edit' apt.id %}" class="btn-appt-edit">
+              <i class="fa fa-pencil"></i> Edit
+            </a>
+            <a href="{% url 'appointment:delete-appointment' apt.id %}"
+               class="btn-appt-delete"
+               title="Delete this appointment">
+              <i class="fa fa-trash-o"></i> Delete
+            </a>
+          </div>
+        </div>
+
+      </div>
+      {% empty %}
+
+      <!-- Empty state -->
+      <div class="appt-empty">
+        <div class="appt-empty-icon"><i class="fa fa-calendar-times-o"></i></div>
+        <h3>No Appointments Yet</h3>
+        <p>You haven't created any appointments. Start by adding your first one.</p>
+        <a href="{% url 'appointment:doctor-appointment-create' %}" class="btn-appt-empty">
+          <i class="fa fa-plus"></i> Create First Appointment
+        </a>
+      </div>
+
+      {% endfor %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}

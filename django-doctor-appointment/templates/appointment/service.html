@@ -1,0 +1,488 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Our Services — MediCare Plus New Delhi{% endblock %}
+
+{% block styles %}
+<style>
+
+  /* ── BREADCRUMB HERO ──────────────────────────────────── */
+  .svc-hero {
+    background: linear-gradient(135deg, #0a1a1a 0%, #0b3a3a 60%, #1a2a0a 100%);
+    padding: 80px 0 60px;
+    position: relative;
+    overflow: hidden;
+  }
+  .svc-hero::before {
+    content: '';
+    position: absolute; top: -60px; right: -60px;
+    width: 320px; height: 320px;
+    background: radial-gradient(circle, rgba(232,96,10,.18) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .svc-hero::after {
+    content: '';
+    position: absolute; bottom: -40px; left: 10%;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(11,110,110,.20) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .svc-hero-inner {
+    position: relative; z-index: 2; text-align: center;
+  }
+  .svc-hero-chip {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: rgba(255,255,255,.10); color: rgba(255,255,255,.85);
+    border: 1px solid rgba(255,255,255,.22);
+    font-size: 12px; font-weight: 700; letter-spacing: .08em;
+    text-transform: uppercase; padding: 6px 16px;
+    border-radius: 50px; margin-bottom: 18px;
+    backdrop-filter: blur(6px);
+  }
+  .svc-hero h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(34px, 5vw, 60px);
+    font-weight: 700; color: #fff;
+    line-height: 1.15; margin-bottom: 14px;
+  }
+  .svc-hero h1 em { color: #ff8c38; font-style: normal; }
+  .svc-hero p {
+    font-size: 16px; color: rgba(255,255,255,.70);
+    max-width: 520px; margin: 0 auto 0;
+    line-height: 1.8;
+  }
+  /* breadcrumb trail */
+  .svc-breadcrumb {
+    display: flex; align-items: center; justify-content: center;
+    gap: 8px; margin-top: 22px;
+    font-size: 13px; color: rgba(255,255,255,.55);
+  }
+  .svc-breadcrumb a { color: rgba(255,255,255,.70); transition: .2s; }
+  .svc-breadcrumb a:hover { color: #ff8c38; }
+  .svc-breadcrumb i { font-size: 10px; }
+
+  /* ── STATS ROW ────────────────────────────────────────── */
+  .svc-stats {
+    background: #0b6e6e; padding: 24px 0;
+  }
+  .svc-stats-inner {
+    display: flex; justify-content: space-around;
+    align-items: center; flex-wrap: wrap; gap: 16px;
+  }
+  .svc-stat { text-align: center; color: #fff; }
+  .svc-stat-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 30px; font-weight: 700;
+    color: #ff8c38; line-height: 1;
+  }
+  .svc-stat-lbl { font-size: 12px; opacity: .78; margin-top: 3px; }
+
+  /* ── SERVICES SECTION ─────────────────────────────────── */
+  .dentist-area { background: #f4f9f8; }
+
+  /* Section header */
+  .svc-section-head { text-align: center; margin-bottom: 60px; padding-top: 80px; }
+  .svc-badge {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: rgba(11,110,110,.09); color: #0b6e6e;
+    border: 1px solid rgba(11,110,110,.20);
+    font-size: 12px; font-weight: 700; letter-spacing: .07em;
+    text-transform: uppercase; padding: 6px 16px;
+    border-radius: 50px; margin-bottom: 14px;
+  }
+  .svc-section-head h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(30px, 4vw, 48px);
+    font-weight: 700; color: #0f1f1f; line-height: 1.2;
+    margin-bottom: 14px;
+  }
+  .svc-section-head h2 em { color: #0b6e6e; font-style: normal; }
+  .svc-section-head p {
+    font-size: 16px; color: #6b8585;
+    max-width: 560px; margin: 0 auto;
+    line-height: 1.8;
+  }
+
+  /* ── SERVICE CARD  (overrides .single-service--area) ──── */
+  .single-service--area {
+    background: #ffffff;
+    border-radius: 22px;
+    border: 1px solid #d9eaea;
+    padding: 36px 28px 30px;
+    transition: transform .30s cubic-bezier(.4,0,.2,1),
+                box-shadow .30s cubic-bezier(.4,0,.2,1);
+    position: relative; overflow: hidden;
+    cursor: default;
+  }
+  /* coloured top accent line */
+  .single-service--area::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #0b6e6e, #e8600a);
+    transform: scaleX(0); transform-origin: left;
+    transition: transform .30s cubic-bezier(.4,0,.2,1);
+    border-radius: 22px 22px 0 0;
+  }
+  .single-service--area:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 56px rgba(11,110,110,.16);
+  }
+  .single-service--area:hover::before { transform: scaleX(1); }
+
+  /* icon circle */
+  .single-service--area .icon-- {
+    width: 80px; height: 80px;
+    border-radius: 22px;
+    background: rgba(11,110,110,.08);
+    border: 1.5px solid rgba(11,110,110,.15);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 32px; color: #0b6e6e;
+    transition: background .30s, color .30s, box-shadow .30s;
+    /* reset position from original */
+    position: relative; top: auto; left: auto;
+    transform: none;
+  }
+  /* hide the img tag, show the fa icon instead */
+  .single-service--area .icon-- img { display: none; }
+  .single-service--area:hover .icon-- {
+    background: #0b6e6e; color: #fff;
+    box-shadow: 0 8px 28px rgba(11,110,110,.32);
+  }
+
+  .single-service--area h5 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px; font-weight: 700;
+    color: #0f1f1f; margin-bottom: 10px;
+    transition: color .25s;
+  }
+  .single-service--area:hover h5 { color: #0b6e6e; }
+
+  .single-service--area p {
+    font-size: 14px; color: #6b8585;
+    line-height: 1.8; margin-bottom: 18px;
+  }
+
+  /* "Learn More" link */
+  .svc-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 700;
+    color: #0b6e6e; text-transform: uppercase;
+    letter-spacing: .05em; transition: gap .25s, color .25s;
+  }
+  .svc-link i { font-size: 11px; transition: transform .25s; }
+  .single-service--area:hover .svc-link { color: #e8600a; gap: 10px; }
+  .single-service--area:hover .svc-link i { transform: translateX(3px); }
+
+  /* ── CTA BANNER ───────────────────────────────────────── */
+  .svc-cta {
+    background: linear-gradient(135deg, #0b6e6e 0%, #064848 100%);
+    margin: 0 0 0; padding: 70px 0;
+    position: relative; overflow: hidden;
+  }
+  .svc-cta::before {
+    content: '';
+    position: absolute; top: -80px; right: -80px;
+    width: 340px; height: 340px;
+    background: rgba(232,96,10,.12); border-radius: 50%;
+  }
+  .svc-cta-inner {
+    display: flex; align-items: center;
+    justify-content: space-between; flex-wrap: wrap;
+    gap: 28px; position: relative; z-index: 2;
+  }
+  .svc-cta h3 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(26px,3.5vw,40px);
+    font-weight: 700; color: #fff; margin-bottom: 8px;
+  }
+  .svc-cta p { color: rgba(255,255,255,.75); font-size: 16px; }
+  .svc-cta-btn {
+    display: inline-flex; align-items: center; gap: 9px;
+    padding: 15px 34px; border-radius: 50px;
+    background: #e8600a; color: #fff;
+    font-size: 15px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: .04em;
+    border: none; cursor: pointer;
+    white-space: nowrap;
+    transition: background .25s, transform .25s, box-shadow .25s;
+    box-shadow: 0 8px 28px rgba(232,96,10,.35);
+  }
+  .svc-cta-btn:hover {
+    background: #ff8c38; transform: translateY(-2px);
+    box-shadow: 0 12px 36px rgba(232,96,10,.45);
+    color: #fff;
+  }
+
+  /* ── RESPONSIVE ───────────────────────────────────────── */
+  @media (max-width: 768px) {
+    .svc-cta-inner { flex-direction: column; text-align: center; }
+  }
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<!-- ═══════════════════════════════════════════════════════
+     BREADCRUMB HERO
+═══════════════════════════════════════════════════════ -->
+<div class="svc-hero">
+  <div class="container">
+    <div class="svc-hero-inner">
+      <div class="svc-hero-chip">
+        <i class="fa fa-stethoscope"></i> What We Offer
+      </div>
+      <h1>
+        World-Class Medical<br>
+        <em>Services in New Delhi</em>
+      </h1>
+      <p>
+        From routine check-ups to advanced surgeries — our NABH-accredited specialists
+        deliver evidence-based care across every major medical discipline.
+      </p>
+      <div class="svc-breadcrumb">
+        <a href="{% url 'appointment:home' %}">Home</a>
+        <i class="fa fa-angle-right"></i>
+        <span>Our Services</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Stats -->
+<div class="svc-stats">
+  <div class="container">
+    <div class="svc-stats-inner">
+      <div class="svc-stat">
+        <div class="svc-stat-num">30+</div>
+        <div class="svc-stat-lbl">Specialities</div>
+      </div>
+      <div class="svc-stat">
+        <div class="svc-stat-num">200+</div>
+        <div class="svc-stat-lbl">Expert Doctors</div>
+      </div>
+      <div class="svc-stat">
+        <div class="svc-stat-num">NABH</div>
+        <div class="svc-stat-lbl">Accredited</div>
+      </div>
+      <div class="svc-stat">
+        <div class="svc-stat-num">24/7</div>
+        <div class="svc-stat-lbl">Emergency Care</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     SERVICES GRID
+═══════════════════════════════════════════════════════ -->
+<section class="dentist-area section-padding-50-0">
+
+  <!-- Section Header -->
+  <div class="container">
+    <div class="svc-section-head">
+      <div class="svc-badge">
+        <i class="fa fa-plus-square"></i> Medical Specialities
+      </div>
+      <h2>Our <em>Healthcare Services</em></h2>
+      <p>
+        Every department at MediCare Plus is led by senior consultants with 15+ years of
+        experience, supported by the latest diagnostic and treatment technology.
+      </p>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="row">
+
+      <!-- 1 · Dentistry -->
+      <div class="col-12 col-sm-6 col-lg-4">
+        <div class="single-service--area text-center mb-50">
+          <div class="icon--">
+            <img src="{% static 'img/123.jpg' %}" alt="Dentistry">
+            <i class="fa fa-tooth"></i>
+          </div>
+          <h5>Dentistry</h5>
+          <p>
+            Complete oral healthcare — cosmetic dentistry, dental implants, root canals,
+            orthodontics, and oral surgery by MDS-qualified specialists.
+          </p>
+          <span class="svc-link">
+            Learn More <i class="fa fa-arrow-right"></i>
+          </span>
+        </div>
+      </div>
+
+      <!-- 2 · Cardiology -->
+      <div class="col-12 col-sm-6 col-lg-4">
+        <div class="single-service--area text-center mb-50">
+          <div class="icon--">
+            <img src="{% static 'img/123.jpg' %}" alt="Cardiology">
+            <i class="fa fa-heartbeat"></i>
+          </div>
+          <h5>Cardiology</h5>
+          <p>
+            Advanced cardiac diagnostics, angioplasty, bypass surgery, and preventive
+            heart care by DM Cardiology-trained consultants.
+          </p>
+          <span class="svc-link">
+            Learn More <i class="fa fa-arrow-right"></i>
+          </span>
+        </div>
+      </div>
+
+      <!-- 3 · ENT -->
+      <div class="col-12 col-sm-6 col-lg-4">
+        <div class="single-service--area text-center mb-50">
+          <div class="icon--">
+            <img src="{% static 'img/123.jpg' %}" alt="ENT Specialists">
+            <i class="fa fa-deaf"></i>
+          </div>
+          <h5>ENT Specialists</h5>
+          <p>
+            Diagnosis and treatment of ear, nose, and throat disorders including hearing
+            loss, sinusitis, tonsillitis, and endoscopic sinus surgery.
+          </p>
+          <span class="svc-link">
+            Learn More <i class="fa fa-arrow-right"></i>
+          </span>
+        </div>
+      </div>
+
+      <!-- 4 · Orthopaedics (replaces Astrology) -->
+      <div class="col-12 col-sm-6 col-lg-4">
+        <div class="single-service--area text-center mb-50">
+          <div class="icon--">
+            <img src="{% static 'img/123.jpg' %}" alt="Orthopaedics">
+            <i class="fa fa-male"></i>
+          </div>
+          <h5>Orthopaedics</h5>
+          <p>
+            Joint replacements, spine surgery, sports injury management, and
+            physiotherapy — restoring mobility and quality of life.
+          </p>
+          <span class="svc-link">
+            Learn More <i class="fa fa-arrow-right"></i>
+          </span>
+        </div>
+      </div>
+
+      <!-- 5 · Neurology (replaces Neuroanatomy) -->
+      <div class="col-12 col-sm-6 col-lg-4">
+        <div class="single-service--area text-center mb-50">
+          <div class="icon--">
+            <img src="{% static 'img/123.jpg' %}" alt="Neurology">
+            <i class="fa fa-brain"></i>
+          </div>
+          <h5>Neurology</h5>
+          <p>
+            Expert care for stroke, epilepsy, Parkinson's disease, migraines, and
+            spinal disorders by DM Neurology certified consultants.
+          </p>
+          <span class="svc-link">
+            Learn More <i class="fa fa-arrow-right"></i>
+          </span>
+        </div>
+      </div>
+
+      <!-- 6 · Pathology & Blood Tests (replaces Blood Screening) -->
+      <div class="col-12 col-sm-6 col-lg-4">
+        <div class="single-service--area text-center mb-50">
+          <div class="icon--">
+            <img src="{% static 'img/123.jpg' %}" alt="Pathology">
+            <i class="fa fa-flask"></i>
+          </div>
+          <h5>Pathology &amp; Blood Tests</h5>
+          <p>
+            NABL-accredited laboratory offering 500+ diagnostic tests — complete blood
+            count, lipid profiles, HbA1c, thyroid panels, and more.
+          </p>
+          <span class="svc-link">
+            Learn More <i class="fa fa-arrow-right"></i>
+          </span>
+        </div>
+      </div>
+
+      <!-- 7 · Ophthalmology (replaces Eye Care) -->
+      <div class="col-12 col-sm-6 col-lg-4">
+        <div class="single-service--area text-center mb-50">
+          <div class="icon--">
+            <img src="{% static 'img/123.jpg' %}" alt="Ophthalmology">
+            <i class="fa fa-eye"></i>
+          </div>
+          <h5>Ophthalmology</h5>
+          <p>
+            LASIK surgery, cataract removal, retinal treatment, glaucoma management,
+            and paediatric eye care by senior vitreoretinal surgeons.
+          </p>
+          <span class="svc-link">
+            Learn More <i class="fa fa-arrow-right"></i>
+          </span>
+        </div>
+      </div>
+
+      <!-- 8 · Physiotherapy (replaces Physical Therapy) -->
+      <div class="col-12 col-sm-6 col-lg-4">
+        <div class="single-service--area text-center mb-50">
+          <div class="icon--">
+            <img src="{% static 'img/123.jpg' %}" alt="Physiotherapy">
+            <i class="fa fa-child"></i>
+          </div>
+          <h5>Physiotherapy</h5>
+          <p>
+            Post-surgery rehabilitation, sports injury recovery, neurological
+            physiotherapy, and pain management programs by certified physiotherapists.
+          </p>
+          <span class="svc-link">
+            Learn More <i class="fa fa-arrow-right"></i>
+          </span>
+        </div>
+      </div>
+
+      <!-- 9 · Gynaecology (new) -->
+      <div class="col-12 col-sm-6 col-lg-4">
+        <div class="single-service--area text-center mb-50">
+          <div class="icon--">
+            <img src="{% static 'img/123.jpg' %}" alt="Gynaecology">
+            <i class="fa fa-venus"></i>
+          </div>
+          <h5>Gynaecology &amp; Obstetrics</h5>
+          <p>
+            Prenatal care, high-risk pregnancy management, laparoscopic surgery,
+            fertility treatment, and complete women's health services.
+          </p>
+          <span class="svc-link">
+            Learn More <i class="fa fa-arrow-right"></i>
+          </span>
+        </div>
+      </div>
+
+    </div><!-- /row -->
+  </div><!-- /container -->
+
+</section>
+<!-- ***** Services Area End ***** -->
+
+
+<!-- ═══════════════════════════════════════════════════════
+     CTA BANNER
+═══════════════════════════════════════════════════════ -->
+<div class="svc-cta">
+  <div class="container">
+    <div class="svc-cta-inner">
+      <div>
+        <h3>Need to See a Specialist Today?</h3>
+        <p>Same-day appointments available across all departments in New Delhi.</p>
+      </div>
+      <a href="{% url 'appointment:home' %}#appointment" class="svc-cta-btn">
+        <i class="fa fa-calendar-check-o"></i>
+        Book Appointment
+      </a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

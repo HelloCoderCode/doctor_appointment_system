@@ -1,0 +1,426 @@
+{% extends 'base.html' %}
+
+{% block title %}Patient Profile Edit{% endblock %}
+
+{% block styles %}
+<style>
+/* ══════════════════════════════════════════════════════════
+   TOKENS
+══════════════════════════════════════════════════════════ */
+:root {
+  --teal    : #0b6e6e;
+  --teal2   : #0d9191;
+  --teal-dk : #064848;
+  --saffron : #e8600a;
+  --saffron2: #ff8c38;
+  --ink     : #0f1f1f;
+  --muted   : #6b8585;
+  --cream   : #f4f9f8;
+  --white   : #ffffff;
+  --border  : #d9eaea;
+  --red     : #d94040;
+  --green   : #22c55e;
+  --ease    : cubic-bezier(.4,0,.2,1);
+}
+
+/* ── PAGE ─────────────────────────────────────────────── */
+.pat-edit-page {
+  min-height: 100vh;
+  background: var(--cream);
+  padding: 48px 16px 72px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* ── CARD ─────────────────────────────────────────────── */
+.pat-card {
+  max-width: 680px;
+  margin: 0 auto;
+  background: var(--white);
+  border-radius: 24px;
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 40px rgba(11,110,110,.10);
+  overflow: hidden;
+}
+
+/* ── CARD HEADER ──────────────────────────────────────── */
+.pat-card-head {
+  background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dk) 100%);
+  padding: 30px 36px 26px;
+  position: relative;
+  overflow: hidden;
+}
+/* decorative circles */
+.pat-card-head::before {
+  content: '';
+  position: absolute; top: -50px; right: -50px;
+  width: 180px; height: 180px;
+  background: rgba(255,255,255,.06);
+  border-radius: 50%; pointer-events: none;
+}
+.pat-card-head::after {
+  content: '';
+  position: absolute; bottom: -30px; left: 40%;
+  width: 120px; height: 120px;
+  background: rgba(232,96,10,.10);
+  border-radius: 50%; pointer-events: none;
+}
+.pat-head-inner {
+  display: flex; align-items: center; gap: 16px;
+  position: relative; z-index: 1;
+}
+.pat-head-icon {
+  width: 52px; height: 52px;
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 14px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; color: #fff;
+}
+.pat-head-text h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px; font-weight: 700;
+  color: #fff; margin: 0 0 4px; line-height: 1.2;
+}
+.pat-head-text p {
+  font-size: 13px; color: rgba(255,255,255,.68); margin: 0;
+}
+
+/* breadcrumb trail */
+.pat-breadcrumb {
+  display: flex; align-items: center; gap: 6px;
+  margin-top: 16px;
+  position: relative; z-index: 1;
+  font-size: 12px; color: rgba(255,255,255,.55);
+}
+.pat-breadcrumb a {
+  color: rgba(255,255,255,.70) !important;
+  text-decoration: none !important;
+  transition: color .22s;
+}
+.pat-breadcrumb a:hover { color: var(--saffron2) !important; }
+.pat-breadcrumb .fa { font-size: 10px; }
+
+/* ── CARD BODY ────────────────────────────────────────── */
+.pat-card-body { padding: 30px 36px 36px; }
+
+/* success / info strip */
+.pat-info-strip {
+  display: flex; align-items: flex-start; gap: 10px;
+  background: rgba(11,110,110,.06);
+  border: 1px solid rgba(11,110,110,.15);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 24px;
+  font-size: 13px; color: var(--teal); line-height: 1.5;
+}
+.pat-info-strip .fa { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+
+/* ── FORM ─────────────────────────────────────────────── */
+.pat-form label {
+  display: block;
+  font-size: 12px; font-weight: 700;
+  color: var(--teal);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 6px;
+}
+.pat-form label abbr {
+  text-decoration: none;
+  color: var(--saffron);
+  margin-left: 2px;
+}
+
+/* all inputs / selects / textarea */
+.pat-form input[type="text"],
+.pat-form input[type="email"],
+.pat-form input[type="password"],
+.pat-form input[type="number"],
+.pat-form input[type="tel"],
+.pat-form input[type="url"],
+.pat-form input[type="date"],
+.pat-form input[type="time"],
+.pat-form select,
+.pat-form textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; color: var(--ink);
+  background: var(--cream);
+  outline: none;
+  transition: border-color .22s var(--ease), box-shadow .22s, background .22s;
+  -webkit-appearance: none; appearance: none;
+  box-sizing: border-box;
+}
+.pat-form input:focus,
+.pat-form select:focus,
+.pat-form textarea:focus {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(11,110,110,.10);
+  background: var(--white);
+  outline: none;
+}
+
+/* custom select arrow */
+.pat-form select {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%230b6e6e' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-color: var(--cream);
+  padding-right: 38px;
+}
+.pat-form select:focus { background-color: var(--white); }
+
+/* textarea */
+.pat-form textarea {
+  resize: vertical; min-height: 88px; line-height: 1.65;
+}
+
+/* file upload */
+.pat-form input[type="file"] {
+  width: 100%; padding: 10px 14px;
+  border: 1.5px dashed var(--border);
+  border-radius: 12px;
+  font-size: 13px; color: var(--muted);
+  background: var(--cream); cursor: pointer;
+  transition: border-color .22s;
+  box-sizing: border-box;
+}
+.pat-form input[type="file"]:hover { border-color: var(--teal); }
+
+/* checkbox / radio */
+.pat-form input[type="checkbox"],
+.pat-form input[type="radio"] {
+  width: 16px; height: 16px;
+  accent-color: var(--teal);
+  cursor: pointer; vertical-align: middle;
+  margin-right: 6px;
+}
+
+/* Django <p> wrapper for each field */
+.pat-form p {
+  margin: 0 0 18px;
+  color: var(--ink);
+}
+.pat-form p:last-of-type { margin-bottom: 0; }
+
+/* error list */
+.pat-form ul.errorlist {
+  list-style: none; margin: 6px 0 0; padding: 0;
+}
+.pat-form ul.errorlist li {
+  font-size: 12px; color: var(--red);
+  display: flex; align-items: center; gap: 5px;
+  margin-top: 3px;
+}
+.pat-form ul.errorlist li::before { content: '⚠'; font-size: 11px; }
+
+/* non-field errors */
+.pat-form .non-field-errors {
+  background: rgba(217,64,64,.06);
+  border: 1px solid rgba(217,64,64,.20);
+  border-radius: 10px; padding: 12px 16px;
+  margin-bottom: 18px; list-style: none;
+}
+.pat-form .non-field-errors li {
+  font-size: 13px; color: var(--red);
+  display: flex; align-items: center; gap: 7px;
+}
+.pat-form .non-field-errors li::before { content: '⚠'; }
+
+/* help text */
+.pat-form .helptext,
+.pat-form span.helptext {
+  display: block; font-size: 11.5px;
+  color: var(--muted); margin-top: 5px; line-height: 1.5;
+}
+
+/* ── SECTION DIVIDER ──────────────────────────────────── */
+.pat-divider {
+  display: flex; align-items: center; gap: 12px;
+  margin: 26px 0 20px;
+}
+.pat-divider span {
+  font-size: 11px; font-weight: 700;
+  color: var(--muted); text-transform: uppercase;
+  letter-spacing: .07em; white-space: nowrap;
+}
+.pat-divider::before,
+.pat-divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+/* ── SUBMIT ROW ───────────────────────────────────────── */
+.pat-submit-wrap {
+  margin-top: 28px;
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+
+.btn-pat-update {
+  display: inline-flex; align-items: center;
+  justify-content: center; gap: 8px;
+  padding: 13px 34px; border-radius: 50px;
+  background: var(--teal); color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; font-weight: 700;
+  border: none; cursor: pointer;
+  text-transform: uppercase; letter-spacing: .04em;
+  box-shadow: 0 4px 16px rgba(11,110,110,.28);
+  transition: background .22s, transform .22s, box-shadow .22s;
+}
+.btn-pat-update:hover {
+  background: var(--teal2);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(11,110,110,.34);
+}
+.btn-pat-update:active { transform: translateY(0); }
+
+.btn-pat-cancel {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 13px 24px; border-radius: 50px;
+  background: transparent; color: var(--muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; font-weight: 600;
+  border: 1.5px solid var(--border); cursor: pointer;
+  text-decoration: none !important;
+  transition: border-color .22s, color .22s;
+}
+.btn-pat-cancel:hover { border-color: var(--teal); color: var(--teal); }
+
+/* ── DANGER ZONE ──────────────────────────────────────── */
+.pat-danger-zone {
+  margin-top: 32px;
+  padding: 16px 18px;
+  border: 1px solid rgba(217,64,64,.20);
+  border-radius: 14px;
+  background: rgba(217,64,64,.04);
+  display: flex; align-items: center;
+  justify-content: space-between; gap: 14px;
+  flex-wrap: wrap;
+}
+.pat-danger-zone-text h5 {
+  font-size: 14px; font-weight: 700; color: var(--red);
+  margin: 0 0 3px;
+}
+.pat-danger-zone-text p {
+  font-size: 12px; color: var(--muted); margin: 0;
+}
+.btn-pat-logout {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 9px 20px; border-radius: 50px;
+  background: transparent; color: var(--red);
+  border: 1.5px solid rgba(217,64,64,.35);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 700;
+  text-decoration: none !important; white-space: nowrap;
+  transition: background .22s, color .22s;
+}
+.btn-pat-logout:hover {
+  background: var(--red); color: #fff;
+  border-color: var(--red);
+}
+
+/* ══════════════════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════════════════ */
+@media (max-width: 720px) {
+  .pat-card { border-radius: 18px; }
+  .pat-card-head { padding: 22px 20px 18px; }
+  .pat-head-icon { width: 44px; height: 44px; font-size: 20px; }
+  .pat-head-text h2 { font-size: 21px; }
+  .pat-card-body { padding: 20px 18px 26px; }
+  .pat-submit-wrap { flex-direction: column; align-items: stretch; }
+  .btn-pat-update,
+  .btn-pat-cancel { justify-content: center; width: 100%; }
+  .pat-danger-zone { flex-direction: column; align-items: flex-start; }
+  .btn-pat-logout { width: 100%; justify-content: center; }
+}
+@media (max-width: 420px) {
+  .pat-edit-page { padding: 20px 10px 52px; }
+  .pat-card-head { padding: 18px 14px 16px; }
+  .pat-card-body { padding: 16px 14px 22px; }
+  .pat-head-text h2 { font-size: 19px; }
+}
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="pat-edit-page">
+  <div class="pat-card">
+
+    <!-- Header -->
+    <div class="pat-card-head">
+      <div class="pat-head-inner">
+        <div class="pat-head-icon">
+          <i class="fa fa-user"></i>
+        </div>
+        <div class="pat-head-text">
+          <h2>Edit Your Profile</h2>
+          <p>Keep your details up to date for better care.</p>
+        </div>
+      </div>
+      <!-- breadcrumb -->
+      <div class="pat-breadcrumb">
+        <a href="{% url 'appointment:home' %}">Home</a>
+        <i class="fa fa-angle-right"></i>
+        <span>Edit Profile</span>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="pat-card-body">
+
+      <!-- Info strip -->
+      <div class="pat-info-strip">
+        <i class="fa fa-info-circle"></i>
+        <span>
+          Your profile helps doctors understand your needs.
+          Fields marked <strong style="color:var(--saffron);margin:0 3px;">*</strong> are required.
+        </span>
+      </div>
+
+      <!-- Non-field errors -->
+      {% if form.non_field_errors %}
+      <ul class="non-field-errors">
+        {% for error in form.non_field_errors %}
+        <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
+      <!-- Form -->
+      <form action="" method="POST" enctype="multipart/form-data" class="pat-form">
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <div class="pat-divider"><span>Save your changes</span></div>
+
+        <div class="pat-submit-wrap">
+          <button type="submit" class="btn-pat-update">
+            <i class="fa fa-check"></i> Update Profile
+          </button>
+          <a href="{% url 'appointment:home' %}" class="btn-pat-cancel">
+            <i class="fa fa-times"></i> Cancel
+          </a>
+        </div>
+      </form>
+
+      <!-- Danger zone -->
+      <div class="pat-danger-zone">
+        <div class="pat-danger-zone-text">
+          <h5>Sign Out</h5>
+          <p>Log out of your MediCare Plus account.</p>
+        </div>
+        <a href="{% url 'accounts:logout' %}" class="btn-pat-logout">
+          <i class="fa fa-sign-out"></i> Logout
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

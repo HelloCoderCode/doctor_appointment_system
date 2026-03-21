@@ -1,0 +1,406 @@
+{% extends 'base.html' %}
+
+{% block title %}Doctor Registration{% endblock %}
+
+{% block styles %}
+<style>
+/* ══════════════════════════════════════════════════════════
+   TOKENS
+══════════════════════════════════════════════════════════ */
+:root {
+  --teal    : #0b6e6e;
+  --teal2   : #0d9191;
+  --teal-dk : #064848;
+  --saffron : #e8600a;
+  --saffron2: #ff8c38;
+  --ink     : #0f1f1f;
+  --muted   : #6b8585;
+  --cream   : #f4f9f8;
+  --white   : #ffffff;
+  --border  : #d9eaea;
+  --red     : #d94040;
+  --ease    : cubic-bezier(.4,0,.2,1);
+}
+
+/* ── PAGE ─────────────────────────────────────────────── */
+.reg-page {
+  min-height: 100vh;
+  background: var(--cream);
+  padding: 48px 16px 64px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* ── CARD ─────────────────────────────────────────────── */
+.reg-card {
+  max-width: 700px;
+  margin: 0 auto;
+  background: var(--white);
+  border-radius: 24px;
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 40px rgba(11,110,110,.10);
+  overflow: hidden;
+}
+
+/* ── CARD HEADER ──────────────────────────────────────── */
+.reg-card-head {
+  background: linear-gradient(135deg, var(--teal) 0%, var(--teal-dk) 100%);
+  padding: 32px 36px 28px;
+  position: relative;
+  overflow: hidden;
+}
+.reg-card-head::after {
+  content: '';
+  position: absolute; bottom: -40px; right: -40px;
+  width: 200px; height: 200px;
+  background: rgba(255,255,255,.06);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.reg-head-inner {
+  display: flex; align-items: center; gap: 16px;
+  position: relative; z-index: 1;
+}
+.reg-head-icon {
+  width: 54px; height: 54px;
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; color: #fff; flex-shrink: 0;
+}
+.reg-head-text h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px; font-weight: 700;
+  color: #fff; margin: 0 0 4px;
+  line-height: 1.2;
+}
+.reg-head-text p {
+  font-size: 13px; color: rgba(255,255,255,.68); margin: 0;
+}
+
+/* progress dots */
+.reg-steps {
+  display: flex; align-items: center; gap: 6px;
+  margin-top: 20px;
+  position: relative; z-index: 1;
+}
+.reg-step-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: rgba(255,255,255,.30);
+}
+.reg-step-dot.active {
+  width: 24px; border-radius: 4px;
+  background: var(--saffron2);
+}
+
+/* ── CARD BODY ────────────────────────────────────────── */
+.reg-card-body { padding: 32px 36px 36px; }
+
+/* info strip */
+.reg-info-strip {
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(11,110,110,.06);
+  border: 1px solid rgba(11,110,110,.14);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 24px;
+  font-size: 13px; color: var(--teal);
+}
+.reg-info-strip .fa { font-size: 14px; flex-shrink: 0; }
+
+/* ── FORM ─────────────────────────────────────────────── */
+.reg-form label {
+  display: block;
+  font-size: 12px; font-weight: 700;
+  color: var(--teal);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 6px;
+}
+.reg-form label abbr {
+  text-decoration: none;
+  color: var(--saffron);
+  margin-left: 2px;
+}
+
+/* all inputs */
+.reg-form input[type="text"],
+.reg-form input[type="email"],
+.reg-form input[type="password"],
+.reg-form input[type="number"],
+.reg-form input[type="tel"],
+.reg-form input[type="url"],
+.reg-form input[type="date"],
+.reg-form input[type="time"],
+.reg-form select,
+.reg-form textarea {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; color: var(--ink);
+  background: var(--cream);
+  outline: none;
+  transition: border-color .22s var(--ease), box-shadow .22s, background .22s;
+  -webkit-appearance: none; appearance: none;
+  box-sizing: border-box;
+}
+.reg-form input:focus,
+.reg-form select:focus,
+.reg-form textarea:focus {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(11,110,110,.10);
+  background: var(--white);
+}
+
+/* custom select arrow */
+.reg-form select {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%230b6e6e' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-color: var(--cream);
+  padding-right: 38px;
+}
+.reg-form select:focus { background-color: var(--white); }
+
+/* textarea */
+.reg-form textarea { resize: vertical; min-height: 90px; line-height: 1.65; }
+
+/* file input */
+.reg-form input[type="file"] {
+  width: 100%; padding: 10px 14px;
+  border: 1.5px dashed var(--border);
+  border-radius: 12px;
+  font-size: 13px; color: var(--muted);
+  background: var(--cream); cursor: pointer;
+  transition: border-color .22s;
+}
+.reg-form input[type="file"]:hover { border-color: var(--teal); }
+
+/* checkbox / radio */
+.reg-form input[type="checkbox"],
+.reg-form input[type="radio"] {
+  width: 16px; height: 16px;
+  accent-color: var(--teal);
+  cursor: pointer; vertical-align: middle;
+  margin-right: 6px;
+}
+
+/* password strength hint */
+.reg-form input[type="password"] {
+  letter-spacing: .05em;
+}
+
+/* Django field wrapper <p> */
+.reg-form p {
+  margin: 0 0 18px;
+  color: var(--ink);
+}
+.reg-form p:last-of-type { margin-bottom: 0; }
+
+/* error list */
+.reg-form ul.errorlist {
+  list-style: none; margin: 6px 0 0; padding: 0;
+}
+.reg-form ul.errorlist li {
+  font-size: 12px; color: var(--red);
+  display: flex; align-items: center; gap: 5px;
+  margin-top: 3px;
+}
+.reg-form ul.errorlist li::before { content: '⚠'; font-size: 11px; }
+
+/* non-field errors */
+.reg-form .non-field-errors {
+  background: rgba(217,64,64,.06);
+  border: 1px solid rgba(217,64,64,.20);
+  border-radius: 10px; padding: 12px 16px;
+  margin-bottom: 20px;
+}
+.reg-form .non-field-errors li {
+  font-size: 13px; color: var(--red);
+  display: flex; align-items: center; gap: 7px;
+}
+.reg-form .non-field-errors li::before { content: '⚠'; }
+
+/* help text */
+.reg-form .helptext,
+.reg-form span.helptext {
+  display: block; font-size: 11.5px;
+  color: var(--muted); margin-top: 5px; line-height: 1.5;
+}
+
+/* ── SECTION DIVIDER ──────────────────────────────────── */
+.form-section-divider {
+  display: flex; align-items: center; gap: 12px;
+  margin: 28px 0 22px;
+}
+.form-section-divider span {
+  font-size: 11px; font-weight: 700;
+  color: var(--muted); text-transform: uppercase;
+  letter-spacing: .07em; white-space: nowrap;
+}
+.form-section-divider::before,
+.form-section-divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+/* ── PASSWORD VISIBILITY HINT ─────────────────────────── */
+.pass-hint {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--muted);
+  margin-top: 6px;
+}
+.pass-hint .fa { font-size: 11px; color: var(--teal); }
+
+/* ── SUBMIT ROW ───────────────────────────────────────── */
+.reg-submit-wrap {
+  margin-top: 30px;
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+}
+.btn-reg-submit {
+  display: inline-flex; align-items: center;
+  justify-content: center; gap: 8px;
+  padding: 13px 36px; border-radius: 50px;
+  background: var(--teal); color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; font-weight: 700;
+  border: none; cursor: pointer;
+  text-transform: uppercase; letter-spacing: .04em;
+  box-shadow: 0 4px 16px rgba(11,110,110,.28);
+  transition: background .22s, transform .22s, box-shadow .22s;
+}
+.btn-reg-submit:hover {
+  background: var(--teal2);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(11,110,110,.34);
+}
+.btn-reg-submit:active { transform: translateY(0); }
+
+.btn-reg-login {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 13px 24px; border-radius: 50px;
+  background: transparent; color: var(--muted);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; font-weight: 600;
+  border: 1.5px solid var(--border); cursor: pointer;
+  text-decoration: none !important;
+  transition: border-color .22s, color .22s;
+}
+.btn-reg-login:hover { border-color: var(--teal); color: var(--teal); }
+
+/* login link */
+.reg-login-prompt {
+  text-align: center;
+  margin-top: 24px;
+  font-size: 13px; color: var(--muted);
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+.reg-login-prompt a {
+  color: var(--teal) !important;
+  font-weight: 700;
+  text-decoration: none !important;
+  transition: color .22s;
+}
+.reg-login-prompt a:hover { color: var(--saffron) !important; }
+
+/* ══════════════════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════════════════ */
+@media (max-width: 720px) {
+  .reg-card { border-radius: 18px; }
+  .reg-card-head { padding: 24px 22px 20px; }
+  .reg-head-icon { width: 46px; height: 46px; font-size: 20px; }
+  .reg-head-text h2 { font-size: 22px; }
+  .reg-card-body { padding: 22px 20px 28px; }
+  .reg-submit-wrap { flex-direction: column; align-items: stretch; }
+  .btn-reg-submit,
+  .btn-reg-login { justify-content: center; width: 100%; }
+}
+@media (max-width: 420px) {
+  .reg-page { padding: 20px 10px 48px; }
+  .reg-card-head { padding: 18px 14px 16px; }
+  .reg-card-body { padding: 16px 14px 22px; }
+  .reg-head-text h2 { font-size: 20px; }
+  .reg-steps { margin-top: 14px; }
+}
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="reg-page">
+  <div class="reg-card">
+
+    <!-- Header -->
+    <div class="reg-card-head">
+      <div class="reg-head-inner">
+        <div class="reg-head-icon">
+          <i class="fa fa-user-md"></i>
+        </div>
+        <div class="reg-head-text">
+          <h2>Doctor Registration</h2>
+          <p>Join MediCare Plus — New Delhi's premier healthcare network.</p>
+        </div>
+      </div>
+      <!-- decorative progress -->
+      <div class="reg-steps">
+        <div class="reg-step-dot active"></div>
+        <div class="reg-step-dot"></div>
+        <div class="reg-step-dot"></div>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div class="reg-card-body">
+
+      <!-- Info notice -->
+      <div class="reg-info-strip">
+        <i class="fa fa-shield"></i>
+        Your information is secure. Fields marked
+        <strong style="color:var(--saffron);margin:0 3px;">*</strong>
+        are required.
+      </div>
+
+      <!-- Non-field errors (Django) -->
+      {% if form.non_field_errors %}
+      <ul class="errorlist non-field-errors">
+        {% for error in form.non_field_errors %}
+        <li>{{ error }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+
+      <form action="" method="POST" enctype="multipart/form-data" class="reg-form">
+        {% csrf_token %}
+
+        <!-- Django renders all fields as <p> tags -->
+        {{ form.as_p }}
+
+        <div class="form-section-divider">
+          <span>Almost there</span>
+        </div>
+
+        <div class="reg-submit-wrap">
+          <button type="submit" class="btn-reg-submit">
+            <i class="fa fa-user-plus"></i> Create Account
+          </button>
+          <a href="{% url 'accounts:login' %}" class="btn-reg-login">
+            <i class="fa fa-sign-in"></i> Already registered?
+          </a>
+        </div>
+
+      </form>
+
+      <!-- Login prompt -->
+      <div class="reg-login-prompt">
+        Already have an account?
+        <a href="{% url 'accounts:login' %}">Sign in here</a>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

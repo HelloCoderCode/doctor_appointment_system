@@ -1,0 +1,581 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Search Results — MediCare Plus{% endblock %}
+
+{% block styles %}
+<style>
+/* ══════════════════════════════════════════════════════════
+   TOKENS
+══════════════════════════════════════════════════════════ */
+:root {
+  --teal    : #0b6e6e;
+  --teal2   : #0d9191;
+  --teal-dk : #064848;
+  --saffron : #e8600a;
+  --saffron2: #ff8c38;
+  --ink     : #0f1f1f;
+  --muted   : #6b8585;
+  --cream   : #f4f9f8;
+  --white   : #ffffff;
+  --border  : #d9eaea;
+  --red     : #d94040;
+  --ease    : cubic-bezier(.4,0,.2,1);
+}
+
+/* ── RESET ────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { overflow-x: hidden !important; max-width: 100vw; }
+
+/* ══════════════════════════════════════════════════════════
+   SEARCH HERO BANNER
+══════════════════════════════════════════════════════════ */
+.search-hero {
+  width: 100%; overflow: hidden;
+  min-height: 340px;
+  display: flex; align-items: center;
+  background-size: cover !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+  position: relative;
+}
+.search-hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    135deg,
+    rgba(6,30,30,.90) 0%,
+    rgba(11,110,110,.60) 55%,
+    rgba(232,96,10,.18) 100%
+  );
+  z-index: 1;
+}
+.search-hero-inner {
+  position: relative; z-index: 2;
+  width: 100%; padding: 52px 24px 48px;
+  max-width: 1200px; margin: 0 auto;
+}
+.search-hero-label {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: rgba(255,255,255,.14); color: rgba(255,255,255,.90);
+  border: 1px solid rgba(255,255,255,.28);
+  font-size: 11px; font-weight: 700; letter-spacing: .09em;
+  text-transform: uppercase; padding: 6px 16px;
+  border-radius: 50px; margin-bottom: 18px;
+  backdrop-filter: blur(8px);
+}
+.search-hero h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(26px, 5vw, 46px);
+  font-weight: 700; color: #fff; line-height: 1.15;
+  margin-bottom: 28px;
+  text-shadow: 0 4px 20px rgba(0,0,0,.28);
+}
+.search-hero h1 span { color: var(--saffron2); }
+
+/* ── SEARCH CARD ──────────────────────────────────────── */
+.search-card {
+  background: rgba(255,255,255,.97);
+  border-radius: 18px;
+  padding: 22px 26px;
+  box-shadow: 0 20px 56px rgba(0,0,0,.22);
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 14px; align-items: end;
+}
+.sc-field label {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 700; color: var(--teal);
+  text-transform: uppercase; letter-spacing: .06em; margin-bottom: 7px;
+}
+.sc-field input,
+.sc-field select {
+  width: 100%; padding: 12px 16px;
+  border: 1.5px solid var(--border); border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; color: var(--ink);
+  background: var(--cream); outline: none;
+  transition: border-color .22s, box-shadow .22s, background .22s;
+  -webkit-appearance: none; appearance: none;
+  box-sizing: border-box;
+}
+.sc-field input:focus,
+.sc-field select:focus {
+  border-color: var(--teal);
+  box-shadow: 0 0 0 3px rgba(11,110,110,.10);
+  background: var(--white);
+}
+.sc-field input::placeholder { color: #a8c4c4; }
+.sc-field select {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%230b6e6e' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-color: var(--cream);
+  padding-right: 38px;
+}
+.sc-field select:focus { background-color: var(--white); }
+
+.btn-search-submit {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 13px 28px; border-radius: 12px;
+  background: var(--saffron); color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; font-weight: 700;
+  border: none; cursor: pointer; white-space: nowrap;
+  box-shadow: 0 4px 14px rgba(232,96,10,.30);
+  transition: background .22s, transform .22s;
+}
+.btn-search-submit:hover { background: var(--saffron2); transform: translateY(-2px); }
+
+/* ══════════════════════════════════════════════════════════
+   RESULTS SECTION
+══════════════════════════════════════════════════════════ */
+.results-section {
+  background: var(--cream);
+  padding: 52px 16px 72px;
+  font-family: 'DM Sans', sans-serif;
+}
+.results-wrap { max-width: 1200px; margin: 0 auto; }
+
+/* ── RESULTS HEADER ───────────────────────────────────── */
+.results-head {
+  display: flex; align-items: flex-end;
+  justify-content: space-between; flex-wrap: wrap;
+  gap: 16px; margin-bottom: 32px;
+}
+.results-count-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: {% if appointment.count > 0 %}rgba(11,110,110,.09){% else %}rgba(217,64,64,.08){% endif %};
+  color: {% if appointment.count > 0 %}var(--teal){% else %}var(--red){% endif %};
+  border: 1px solid {% if appointment.count > 0 %}rgba(11,110,110,.18){% else %}rgba(217,64,64,.20){% endif %};
+  font-size: 13px; font-weight: 700;
+  padding: 8px 18px; border-radius: 50px; margin-bottom: 10px;
+}
+.results-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(24px, 3.5vw, 36px);
+  font-weight: 700; color: var(--ink); line-height: 1.2;
+}
+.results-title em { color: var(--teal); font-style: normal; }
+.results-sub { font-size: 14px; color: var(--muted); margin-top: 4px; }
+
+.btn-results-home {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 11px 22px; border-radius: 50px;
+  background: transparent; color: var(--teal) !important;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 700;
+  border: 1.5px solid var(--teal);
+  text-decoration: none !important; white-space: nowrap;
+  transition: background .22s, color .22s;
+}
+.btn-results-home:hover { background: var(--teal); color: #fff !important; }
+
+/* ── DOCTOR GRID ──────────────────────────────────────── */
+.doctor-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+/* ── DOCTOR CARD ──────────────────────────────────────── */
+.doctor-card {
+  background: var(--white);
+  border-radius: 20px; overflow: hidden;
+  border: 1px solid var(--border);
+  transition: transform .28s var(--ease), box-shadow .28s var(--ease);
+  display: flex; flex-direction: column;
+}
+.doctor-card:hover {
+  transform: translateY(-7px);
+  box-shadow: 0 22px 56px rgba(11,110,110,.15);
+}
+
+/* photo */
+.dc-photo {
+  position: relative; overflow: hidden;
+  height: 230px;
+  background: linear-gradient(135deg, #c8e6e4, #a0d4d0);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.dc-photo img {
+  width: 100%; height: 100%; object-fit: cover;
+  transition: transform .4s var(--ease);
+}
+.doctor-card:hover .dc-photo img { transform: scale(1.05); }
+.dc-photo-fallback {
+  font-size: 56px; color: var(--teal); opacity: .4;
+}
+
+/* badges */
+.dc-avail {
+  position: absolute; top: 12px; left: 12px;
+  background: #22c55e; color: #fff;
+  font-size: 10px; font-weight: 700;
+  padding: 4px 10px; border-radius: 50px;
+  display: flex; align-items: center; gap: 5px;
+  text-transform: uppercase; letter-spacing: .04em;
+}
+.dc-avail::before {
+  content: ''; width: 6px; height: 6px;
+  background: #fff; border-radius: 50%;
+  animation: blink 1.4s infinite;
+}
+@keyframes blink { 0%,100%{opacity:1}50%{opacity:.4} }
+
+/* hover overlay */
+.dc-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(transparent 40%, rgba(6,30,30,.84));
+  opacity: 0; transition: opacity .28s var(--ease);
+  display: flex; align-items: flex-end; justify-content: center;
+  padding-bottom: 16px; gap: 10px;
+}
+.doctor-card:hover .dc-overlay { opacity: 1; }
+.dc-overlay a {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: rgba(255,255,255,.18); border: 1px solid rgba(255,255,255,.28);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff !important; font-size: 13px;
+  text-decoration: none !important;
+  transition: background .2s;
+}
+.dc-overlay a:hover { background: var(--saffron); }
+
+/* body */
+.dc-body {
+  padding: 18px 20px 20px;
+  flex: 1; display: flex; flex-direction: column;
+}
+.dc-dept {
+  font-size: 11px; font-weight: 700; color: var(--saffron);
+  text-transform: uppercase; letter-spacing: .07em; margin-bottom: 5px;
+}
+.dc-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px; font-weight: 700; color: var(--ink);
+  margin-bottom: 3px; line-height: 1.2;
+}
+.dc-qual { font-size: 12px; color: var(--muted); margin-bottom: 14px; }
+
+.dc-meta {
+  display: flex; flex-direction: column; gap: 7px;
+  margin-bottom: 16px; flex: 1;
+}
+.dc-meta-item {
+  display: flex; align-items: flex-start; gap: 8px;
+  font-size: 12px; color: var(--muted); line-height: 1.4;
+}
+.dc-meta-item .fa {
+  color: var(--teal); font-size: 12px; flex-shrink: 0;
+  width: 14px; height: 15px; margin-top: 1px;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+
+/* divider */
+.dc-divider { height: 1px; background: var(--border); margin-bottom: 14px; }
+
+/* CTA */
+.dc-appt-btn {
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  width: 100%; padding: 11px 0;
+  background: var(--teal); color: #fff !important;
+  border-radius: 50px; font-size: 13px; font-weight: 700;
+  text-decoration: none !important;
+  transition: background .22s;
+}
+.dc-appt-btn:hover { background: var(--teal2); }
+
+.dc-colleague-badge {
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  width: 100%; padding: 11px 0;
+  background: rgba(11,110,110,.08); color: var(--teal);
+  border-radius: 50px; font-size: 13px; font-weight: 700;
+  border: 1px solid rgba(11,110,110,.18);
+}
+
+.dc-login-hint {
+  text-align: center; font-size: 12px; color: var(--muted);
+  padding: 9px 0; display: flex; align-items: center;
+  justify-content: center; gap: 6px;
+}
+.dc-login-hint a { color: var(--teal) !important; font-weight: 700; text-decoration: none !important; }
+.dc-login-hint .fa { font-size: 11px; }
+
+/* ── PAGINATION ───────────────────────────────────────── */
+.results-pagination {
+  display: flex; justify-content: center; align-items: center;
+  gap: 8px; margin-top: 48px; flex-wrap: wrap;
+}
+.results-pagination a,
+.results-pagination .pg-current {
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+  min-width: 42px; height: 42px; padding: 0 16px;
+  border-radius: 50px; font-size: 13px; font-weight: 700;
+  border: 1.5px solid var(--border);
+  background: var(--white); color: var(--teal) !important;
+  transition: background .2s, border-color .2s;
+  text-decoration: none !important;
+  font-family: 'DM Sans', sans-serif;
+}
+.results-pagination a:hover {
+  background: var(--teal); color: #fff !important; border-color: var(--teal);
+}
+.results-pagination .pg-current {
+  background: var(--teal); color: #fff !important; border-color: var(--teal);
+}
+
+/* ── EMPTY STATE ──────────────────────────────────────── */
+.results-empty {
+  text-align: center; padding: 72px 24px;
+  grid-column: 1 / -1;
+}
+.results-empty-icon {
+  width: 76px; height: 76px; border-radius: 22px;
+  background: rgba(11,110,110,.08);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 34px; color: var(--teal); margin: 0 auto 20px;
+}
+.results-empty h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px; font-weight: 700; color: var(--ink); margin-bottom: 10px;
+}
+.results-empty p {
+  font-size: 15px; color: var(--muted);
+  max-width: 380px; margin: 0 auto 24px; line-height: 1.75;
+}
+.btn-empty-back {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 13px 28px; border-radius: 50px;
+  background: var(--teal); color: #fff !important;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; font-weight: 700;
+  text-decoration: none !important;
+  box-shadow: 0 4px 16px rgba(11,110,110,.26);
+  transition: background .22s, transform .22s;
+}
+.btn-empty-back:hover { background: var(--teal2); transform: translateY(-2px); }
+
+/* ══════════════════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .search-card { grid-template-columns: 1fr 1fr; }
+  .search-card .btn-search-submit { grid-column: 1/-1; }
+  .doctor-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+  .search-hero { min-height: auto; }
+  .search-hero-inner { padding: 36px 16px 32px; }
+  .search-card { grid-template-columns: 1fr; padding: 18px; gap: 12px; }
+  .doctor-grid { grid-template-columns: 1fr; gap: 16px; }
+  .results-head { flex-direction: column; align-items: flex-start; }
+  .btn-results-home { width: 100%; justify-content: center; }
+  .results-section { padding: 36px 14px 56px; }
+}
+@media (max-width: 400px) {
+  .search-hero h1 { font-size: 24px; }
+  .dc-photo { height: 190px; }
+}
+</style>
+{% endblock %}
+
+
+{% block content %}
+
+<!-- ═══════════════════════════════════════════════════════
+     SEARCH HERO BANNER
+═══════════════════════════════════════════════════════ -->
+<div class="search-hero"
+     style="background-image: url('{% static 'img/bg-img/13.jpg' %}');">
+  <div class="search-hero-inner">
+    <div class="search-hero-label">
+      <i class="fa fa-search"></i>&nbsp; Find Your Doctor in New Delhi
+    </div>
+    <h1>
+      Search <span>Doctors</span> &amp; Book<br>
+      Your Appointment
+    </h1>
+
+    <!-- Search Form -->
+    <form id="job-main-form" method="get" action="" class="search-doctor-form">
+      <div class="search-card">
+        <div class="sc-field">
+          <label><i class="fa fa-map-marker"></i>&nbsp; Location</label>
+          <input type="text" id="location" name="location"
+                 value="{{ request.GET.location }}"
+                 placeholder="e.g. Connaught Place, Saket…">
+        </div>
+        <div class="sc-field">
+          <label><i class="fa fa-stethoscope"></i>&nbsp; Speciality</label>
+          <select id="department" name="department">
+            <option value="" {% if not request.GET.department %}selected{% endif %} disabled>Select Speciality</option>
+            <option {% if request.GET.department == 'Cardiology' %}selected{% endif %}>Cardiology</option>
+            <option {% if request.GET.department == 'Dentistry' %}selected{% endif %}>Dentistry</option>
+            <option {% if request.GET.department == 'ENT Specialists' %}selected{% endif %}>ENT Specialists</option>
+            <option {% if request.GET.department == 'Orthopaedics' %}selected{% endif %}>Orthopaedics</option>
+            <option {% if request.GET.department == 'Neurology' %}selected{% endif %}>Neurology</option>
+            <option {% if request.GET.department == 'Pathology & Blood Tests' %}selected{% endif %}>Pathology &amp; Blood Tests</option>
+            <option {% if request.GET.department == 'Ophthalmology' %}selected{% endif %}>Ophthalmology</option>
+            <option {% if request.GET.department == 'Physiotherapy' %}selected{% endif %}>Physiotherapy</option>
+            <option {% if request.GET.department == 'Gynaecology' %}selected{% endif %}>Gynaecology</option>
+            <option {% if request.GET.department == 'Dermatology' %}selected{% endif %}>Dermatology</option>
+          </select>
+        </div>
+        <button type="submit" class="btn-search-submit">
+          <i class="fa fa-search"></i> Search
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     RESULTS SECTION
+═══════════════════════════════════════════════════════ -->
+<section class="results-section">
+  <div class="results-wrap">
+
+    <!-- Results Header -->
+    <div class="results-head">
+      <div>
+        <div class="results-count-badge">
+          <i class="fa fa-user-md"></i>
+          {{ appointment.count }} Doctor{{ appointment.count|pluralize }} Found
+        </div>
+        <h2 class="results-title">
+          Search <em>Results</em>
+          {% if request.GET.location %}for "{{ request.GET.location }}"{% endif %}
+        </h2>
+        <p class="results-sub">
+          {% if appointment.count > 0 %}
+            Showing verified specialists in New Delhi — book instantly.
+          {% else %}
+            Try adjusting your location or speciality filters.
+          {% endif %}
+        </p>
+      </div>
+      <a href="{% url 'appointment:home' %}" class="btn-results-home">
+        <i class="fa fa-arrow-left"></i> Back to Home
+      </a>
+    </div>
+
+    <!-- Doctor Grid -->
+    <div class="doctor-grid">
+
+      {% for apt in appointment %}
+      <div class="doctor-card">
+
+        <!-- Photo -->
+        <div class="dc-photo">
+          {% if apt.image %}
+            <img src="{{ apt.image.url }}" alt="Dr. {{ apt.full_name }}">
+          {% else %}
+            <div class="dc-photo-fallback"><i class="fa fa-user-md"></i></div>
+          {% endif %}
+          <div class="dc-avail">Available</div>
+          <div class="dc-overlay">
+            <a href="#" title="LinkedIn"><i class="fa fa-linkedin"></i></a>
+            <a href="#" title="Email"><i class="fa fa-envelope"></i></a>
+            <a href="#" title="Share"><i class="fa fa-share-alt"></i></a>
+          </div>
+        </div>
+
+        <!-- Body -->
+        <div class="dc-body">
+          <div class="dc-dept">{{ apt.department }}</div>
+          <div class="dc-name">Dr. {{ apt.full_name }}</div>
+          <div class="dc-qual">
+            {{ apt.qualification_name }}{% if apt.institute_name %}, {{ apt.institute_name }}{% endif %}
+          </div>
+
+          <div class="dc-meta">
+            <div class="dc-meta-item">
+              <i class="fa fa-clock-o"></i>
+              {{ apt.start_time }} – {{ apt.end_time }}
+            </div>
+            <div class="dc-meta-item">
+              <i class="fa fa-hospital-o"></i>
+              {{ apt.hospital_name }}
+            </div>
+            <div class="dc-meta-item">
+              <i class="fa fa-map-marker"></i>
+              {{ apt.location }}, New Delhi
+            </div>
+          </div>
+
+          <div class="dc-divider"></div>
+
+          <!-- Role-based CTA -->
+          {% if request.user.is_authenticated and request.user.role == 'patient' %}
+            <a href="{% url 'appointment:take-appointment' apt.id %}" class="dc-appt-btn">
+              <i class="fa fa-calendar-check-o"></i> Book Appointment
+            </a>
+
+          {% elif request.user.is_authenticated and request.user.role == 'doctor' %}
+            <div class="dc-colleague-badge">
+              <i class="fa fa-user-md"></i> Colleague Profile
+            </div>
+
+          {% else %}
+            <div class="dc-login-hint">
+              <i class="fa fa-lock"></i>
+              <a href="{% url 'accounts:login' %}">Login as Patient</a>
+              to book
+            </div>
+          {% endif %}
+
+        </div>
+      </div>
+      {% empty %}
+
+      <!-- Empty state -->
+      <div class="results-empty">
+        <div class="results-empty-icon"><i class="fa fa-search"></i></div>
+        <h3>No Doctors Found</h3>
+        <p>
+          We couldn't find any doctors matching your search.
+          Try a different location or speciality.
+        </p>
+        <a href="{% url 'appointment:home' %}" class="btn-empty-back">
+          <i class="fa fa-home"></i> Back to Home
+        </a>
+      </div>
+
+      {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.paginator.num_pages > 1 %}
+    <div class="results-pagination">
+      {% if page_obj.has_previous %}
+        <a href="?page=1{% if request.GET.location %}&location={{ request.GET.location }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}">
+          <i class="fa fa-angle-double-left"></i> First
+        </a>
+        <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.location %}&location={{ request.GET.location }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}">
+          <i class="fa fa-angle-left"></i> Prev
+        </a>
+      {% endif %}
+
+      <span class="pg-current">
+        {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+      </span>
+
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if request.GET.location %}&location={{ request.GET.location }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}">
+          Next <i class="fa fa-angle-right"></i>
+        </a>
+        <a href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.location %}&location={{ request.GET.location }}{% endif %}{% if request.GET.department %}&department={{ request.GET.department }}{% endif %}">
+          Last <i class="fa fa-angle-double-right"></i>
+        </a>
+      {% endif %}
+    </div>
+    {% endif %}
+
+  </div>
+</section>
+
+{% endblock %}

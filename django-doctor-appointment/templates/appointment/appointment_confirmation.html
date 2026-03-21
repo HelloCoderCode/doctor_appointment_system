@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Appointment Confirmed{% endblock %}
+
+{% block styles %}
+<style>
+:root {
+  --teal    : #0b6e6e;
+  --teal-dk : #064848;
+  --saffron : #e8600a;
+  --saffron2: #ff8c38;
+  --ink     : #0f1f1f;
+  --muted   : #6b8585;
+  --cream   : #f4f9f8;
+  --white   : #ffffff;
+  --border  : #d9eaea;
+}
+.appt-section { background: var(--cream); padding: 60px 16px 80px; font-family: 'DM Sans', sans-serif; }
+.appt-wrap { max-width: 680px; margin: 0 auto; }
+.appt-card { background: var(--white); border-radius: 24px; border: 1px solid var(--border); box-shadow: 0 20px 56px rgba(11,110,110,.10); overflow: hidden; }
+.appt-card-header { background: linear-gradient(135deg, var(--teal-dk), var(--teal)); padding: 28px 36px 24px; display: flex; align-items: center; gap: 16px; }
+.appt-card-header-icon { width: 52px; height: 52px; border-radius: 16px; background: rgba(255,255,255,.15); display: flex; align-items: center; justify-content: center; font-size: 22px; color: #fff; border: 1px solid rgba(255,255,255,.20); flex-shrink: 0; }
+.appt-card-header-text h2 { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 700; color: #fff; line-height: 1.2; margin-bottom: 3px; }
+.appt-card-header-text p { font-size: 13px; color: rgba(255,255,255,.70); }
+.appt-card-body { padding: 36px; }
+.appt-info-strip { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+.appt-info-item { flex: 1; min-width: 160px; display: flex; align-items: center; gap: 10px; background: var(--white); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; }
+.appt-info-item-icon { width: 36px; height: 36px; border-radius: 10px; background: rgba(11,110,110,.08); display: flex; align-items: center; justify-content: center; font-size: 15px; color: var(--teal); flex-shrink: 0; }
+.appt-info-item-text span { display: block; font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.appt-info-item-text strong { font-size: 13px; font-weight: 700; color: var(--ink); }
+.appt-divider { height: 1px; background: var(--border); margin: 28px 0; }
+.appt-actions { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
+.btn-appt-back { display: inline-flex; align-items: center; gap: 7px; padding: 12px 22px; border-radius: 50px; background: transparent; color: var(--teal) !important; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 700; border: 1.5px solid var(--teal); text-decoration: none !important; transition: background .22s, color .22s; }
+.btn-appt-back:hover { background: var(--teal); color: #fff !important; }
+.btn-appt-submit { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 13px 32px; border-radius: 50px; background: var(--saffron); color: #fff !important; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 700; border: none; cursor: pointer; box-shadow: 0 4px 14px rgba(232,96,10,.30); transition: background .22s, transform .22s; text-decoration: none !important; }
+.btn-appt-submit:hover { background: var(--saffron2); transform: translateY(-2px); }
+@media (max-width: 640px) {
+  .appt-card-body { padding: 24px 20px; }
+  .appt-card-header { padding: 22px 20px; }
+  .appt-actions { flex-direction: column; }
+  .btn-appt-back, .btn-appt-submit { width: 100%; justify-content: center; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="appt-section">
+  <div class="appt-wrap">
+    <div class="appt-card" style="margin-top: 28px;">
+      <div class="appt-card-header">
+        <div class="appt-card-header-icon">
+          <i class="fa fa-check-circle-o"></i>
+        </div>
+        <div class="appt-card-header-text">
+          <h2>Appointment Confirmed</h2>
+          <p>Your booking has been saved successfully</p>
+        </div>
+      </div>
+      <div class="appt-card-body">
+        <div class="appt-info-strip">
+          <div class="appt-info-item">
+            <div class="appt-info-item-icon"><i class="fa fa-ticket"></i></div>
+            <div class="appt-info-item-text">
+              <span>Booking ID</span>
+              <strong>{{ booking.booking_id }}</strong>
+            </div>
+          </div>
+          <div class="appt-info-item">
+            <div class="appt-info-item-icon"><i class="fa fa-user-md"></i></div>
+            <div class="appt-info-item-text">
+              <span>Doctor</span>
+              <strong>{{ booking.appointment.full_name }}</strong>
+            </div>
+          </div>
+          <div class="appt-info-item">
+            <div class="appt-info-item-icon"><i class="fa fa-clock-o"></i></div>
+            <div class="appt-info-item-text">
+              <span>Date</span>
+              <strong>{{ booking.date }}</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="appt-divider"></div>
+
+        <div class="appt-actions">
+          <a href="{% url 'appointment:home' %}" class="btn-appt-back">
+            <i class="fa fa-arrow-left"></i> Back to Home
+          </a>
+          <a href="{% url 'appointment:take-appointment-pdf' booking.pk %}" class="btn-appt-submit">
+            <i class="fa fa-download"></i> Download Confirmation PDF
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

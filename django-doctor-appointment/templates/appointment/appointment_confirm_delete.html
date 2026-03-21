@@ -1,0 +1,339 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Appointment — MediCare Plus{% endblock %}
+
+{% block styles %}
+<style>
+/* ══════════════════════════════════════════════════════════
+   TOKENS
+══════════════════════════════════════════════════════════ */
+:root {
+  --teal    : #0b6e6e;
+  --teal2   : #0d9191;
+  --teal-dk : #064848;
+  --saffron : #e8600a;
+  --ink     : #0f1f1f;
+  --muted   : #6b8585;
+  --cream   : #f4f9f8;
+  --white   : #ffffff;
+  --border  : #d9eaea;
+  --red     : #d94040;
+  --red-dk  : #b03030;
+  --red-bg  : rgba(217,64,64,.06);
+  --red-bdr : rgba(217,64,64,.20);
+  --ease    : cubic-bezier(.4,0,.2,1);
+}
+
+/* ── PAGE ─────────────────────────────────────────────── */
+.del-page {
+  min-height: 100vh;
+  background: var(--cream);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 16px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* ── CARD ─────────────────────────────────────────────── */
+.del-card {
+  width: 100%;
+  max-width: 520px;
+  background: var(--white);
+  border-radius: 24px;
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 40px rgba(11,110,110,.10);
+  overflow: hidden;
+}
+
+/* ── HEADER ───────────────────────────────────────────── */
+.del-head {
+  background: linear-gradient(135deg, var(--red) 0%, var(--red-dk) 100%);
+  padding: 28px 32px 24px;
+  text-align: center;
+  position: relative; overflow: hidden;
+}
+.del-head::before {
+  content: '';
+  position: absolute; top: -50px; right: -50px;
+  width: 160px; height: 160px;
+  background: rgba(255,255,255,.07); border-radius: 50%;
+  pointer-events: none;
+}
+.del-head::after {
+  content: '';
+  position: absolute; bottom: -30px; left: -30px;
+  width: 120px; height: 120px;
+  background: rgba(0,0,0,.08); border-radius: 50%;
+  pointer-events: none;
+}
+.del-head-icon {
+  width: 58px; height: 58px;
+  background: rgba(255,255,255,.15);
+  border: 1.5px solid rgba(255,255,255,.28);
+  border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; color: #fff;
+  margin: 0 auto 14px;
+  position: relative; z-index: 1;
+}
+.del-head h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 24px; font-weight: 700;
+  color: #fff; margin: 0 0 6px; line-height: 1.2;
+  position: relative; z-index: 1;
+}
+.del-head p {
+  font-size: 13px; color: rgba(255,255,255,.72);
+  margin: 0; position: relative; z-index: 1;
+}
+
+/* ── BODY ─────────────────────────────────────────────── */
+.del-body { padding: 28px 32px 32px; }
+
+/* warning strip */
+.del-warning {
+  display: flex; align-items: flex-start; gap: 12px;
+  background: var(--red-bg);
+  border: 1px solid var(--red-bdr);
+  border-radius: 14px; padding: 14px 16px;
+  margin-bottom: 24px;
+  font-size: 13px; color: var(--red); line-height: 1.6;
+}
+.del-warning .fa {
+  font-size: 18px; flex-shrink: 0; margin-top: 1px;
+}
+.del-warning strong { font-weight: 700; }
+
+/* ── DOCTOR PROFILE STRIP ─────────────────────────────── */
+.del-doctor-strip {
+  display: flex; align-items: center; gap: 16px;
+  background: var(--cream);
+  border: 1px solid var(--border);
+  border-radius: 16px; padding: 16px;
+  margin-bottom: 24px;
+}
+.del-doctor-img {
+  width: 72px; height: 72px;
+  border-radius: 14px; overflow: hidden; flex-shrink: 0;
+  background: linear-gradient(135deg, #c8e6e4, #a0d4d0);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; color: var(--teal);
+  border: 2px solid var(--border);
+}
+.del-doctor-img img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+}
+.del-doctor-info { flex: 1; min-width: 0; }
+.del-doctor-name {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 20px; font-weight: 700; color: var(--ink);
+  margin-bottom: 4px; line-height: 1.2;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.del-doctor-dept {
+  font-size: 12px; font-weight: 700; color: var(--saffron);
+  text-transform: uppercase; letter-spacing: .06em;
+  margin-bottom: 6px;
+}
+.del-doctor-meta {
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+.del-doctor-meta-item {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 12px; color: var(--muted);
+}
+.del-doctor-meta-item .fa {
+  color: var(--teal); font-size: 11px;
+  width: 13px; display: inline-flex;
+  align-items: center; justify-content: center;
+}
+
+/* ── CONSEQUENCE LIST ─────────────────────────────────── */
+.del-consequence {
+  list-style: none; margin: 0 0 24px; padding: 0;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.del-consequence li {
+  display: flex; align-items: flex-start; gap: 10px;
+  font-size: 13px; color: var(--muted); line-height: 1.5;
+}
+.del-consequence li .fa {
+  font-size: 13px; color: var(--red);
+  flex-shrink: 0; margin-top: 1px;
+  width: 16px; display: inline-flex;
+  align-items: center; justify-content: center;
+}
+
+/* ── ACTION BUTTONS ───────────────────────────────────── */
+.del-actions {
+  display: flex; gap: 12px; flex-wrap: wrap;
+}
+
+.btn-del-confirm {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 13px 24px; border-radius: 50px;
+  background: var(--red); color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; font-weight: 700;
+  border: none; cursor: pointer;
+  text-transform: uppercase; letter-spacing: .04em;
+  box-shadow: 0 4px 16px rgba(217,64,64,.30);
+  transition: background .22s, transform .22s, box-shadow .22s;
+  min-width: 0;
+}
+.btn-del-confirm:hover {
+  background: var(--red-dk); transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(217,64,64,.38);
+}
+.btn-del-confirm:active { transform: translateY(0); }
+
+.btn-del-cancel {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 13px 24px; border-radius: 50px;
+  background: transparent; color: var(--teal);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; font-weight: 700;
+  border: 1.5px solid var(--teal);
+  text-decoration: none !important;
+  transition: background .22s, color .22s;
+  min-width: 0;
+}
+.btn-del-cancel:hover {
+  background: var(--teal); color: #fff !important;
+}
+
+/* ── SAFE NOTE ────────────────────────────────────────── */
+.del-safe-note {
+  display: flex; align-items: center; gap: 7px;
+  margin-top: 18px;
+  font-size: 12px; color: var(--muted);
+  justify-content: center; text-align: center;
+}
+.del-safe-note .fa { font-size: 12px; color: var(--teal); flex-shrink: 0; }
+
+/* ══════════════════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════════════════ */
+@media (max-width: 540px) {
+  .del-card { border-radius: 18px; }
+  .del-head { padding: 22px 20px 18px; }
+  .del-head-icon { width: 50px; height: 50px; font-size: 22px; }
+  .del-head h2 { font-size: 21px; }
+  .del-body { padding: 20px 18px 26px; }
+  .del-actions { flex-direction: column; }
+  .btn-del-confirm,
+  .btn-del-cancel { flex: unset; width: 100%; }
+  .del-doctor-strip { flex-direction: column; align-items: flex-start; }
+  .del-doctor-img { width: 60px; height: 60px; }
+}
+@media (max-width: 380px) {
+  .del-page { padding: 20px 10px; }
+  .del-head { padding: 18px 14px 16px; }
+  .del-body { padding: 16px 14px 22px; }
+}
+</style>
+{% endblock %}
+
+
+{% block content %}
+<div class="del-page">
+  <div class="del-card">
+
+    <!-- Header -->
+    <div class="del-head">
+      <div class="del-head-icon">
+        <i class="fa fa-trash"></i>
+      </div>
+      <h2>Delete Appointment</h2>
+      <p>This action cannot be undone</p>
+    </div>
+
+    <!-- Body -->
+    <div class="del-body">
+
+      <!-- Warning strip -->
+      <div class="del-warning">
+        <i class="fa fa-exclamation-triangle"></i>
+        <div>
+          You are about to permanently delete
+          <strong>{{ object.full_name }}'s</strong> appointment.
+          Please review the details below before confirming.
+        </div>
+      </div>
+
+      <!-- Doctor / Patient strip -->
+      <div class="del-doctor-strip">
+        <div class="del-doctor-img">
+          {% if object.image %}
+            <img src="{{ object.image.url }}" alt="{{ object.full_name }}">
+          {% else %}
+            <i class="fa fa-user-md"></i>
+          {% endif %}
+        </div>
+        <div class="del-doctor-info">
+          <div class="del-doctor-name">{{ object.full_name }}</div>
+          {% if object.department %}
+          <div class="del-doctor-dept">{{ object.department }}</div>
+          {% endif %}
+          <div class="del-doctor-meta">
+            {% if object.hospital_name %}
+            <span class="del-doctor-meta-item">
+              <i class="fa fa-hospital-o"></i> {{ object.hospital_name }}
+            </span>
+            {% endif %}
+            {% if object.location %}
+            <span class="del-doctor-meta-item">
+              <i class="fa fa-map-marker"></i> {{ object.location }}
+            </span>
+            {% endif %}
+            {% if object.start_time and object.end_time %}
+            <span class="del-doctor-meta-item">
+              <i class="fa fa-clock-o"></i> {{ object.start_time }} – {{ object.end_time }}
+            </span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- What happens -->
+      <ul class="del-consequence">
+        <li>
+          <i class="fa fa-times-circle"></i>
+          This appointment will be permanently removed from the system.
+        </li>
+        <li>
+          <i class="fa fa-times-circle"></i>
+          The patient will lose access to this booking record.
+        </li>
+        <li>
+          <i class="fa fa-times-circle"></i>
+          This action cannot be reversed once confirmed.
+        </li>
+      </ul>
+
+      <!-- Action buttons -->
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="del-actions">
+          <button type="submit" class="btn-del-confirm">
+            <i class="fa fa-trash"></i> Yes, Delete
+          </button>
+          <a href="{% url 'appointment:home' %}" class="btn-del-cancel">
+            <i class="fa fa-arrow-left"></i> Cancel
+          </a>
+        </div>
+      </form>
+
+      <!-- Safe note -->
+      <div class="del-safe-note">
+        <i class="fa fa-lock"></i>
+        Your other appointments and data remain safe and unaffected.
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
