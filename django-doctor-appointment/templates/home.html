@@ -633,7 +633,7 @@ img { display: block; max-width: 100%; }
           </div>
 
           {% if request.user.is_authenticated and request.user.role == 'patient' %}
-            <a href="{% url 'appointment:take-appointment' apt.id %}" class="dc-appt-btn">
+            <a href="{% url 'appointment:take-appointment' apt.uuid %}" class="dc-appt-btn">
               <i class="fa fa-calendar-check-o"></i> Book Appointment
             </a>
           {% elif request.user.is_authenticated and request.user.role == 'doctor' %}

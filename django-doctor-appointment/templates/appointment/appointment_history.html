@@ -62,10 +62,10 @@
             <span><i class="fa fa-calendar"></i> {{ b.date }}</span>
           </div>
           <div class="appt-actions">
-            <a href="{% url 'appointment:take-appointment-confirm' b.pk %}" class="btn-appt btn-appt-outline">
+            <a href="{% url 'appointment:take-appointment-confirm' b.booking_id %}" class="btn-appt btn-appt-outline">
               View Details
             </a>
-            <a href="{% url 'appointment:take-appointment-pdf' b.pk %}" class="btn-appt btn-appt-primary">
+            <a href="{% url 'appointment:take-appointment-pdf' b.booking_id %}" class="btn-appt btn-appt-primary">
               Download PDF
             </a>
           </div>

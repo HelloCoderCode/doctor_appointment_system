@@ -1,6 +1,7 @@
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.text import slugify
 from accounts.models import User
 import uuid
 
@@ -25,7 +26,9 @@ def _default_appt_time():
 
 class Appointment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     full_name = models.CharField(max_length=100)
+    slug = models.SlugField(max_length=130, unique=True, blank=True)
     image = models.ImageField(null=True, blank=True)
     location = models.CharField(max_length=100)
     start_time = models.CharField(max_length=10)
@@ -39,6 +42,20 @@ class Appointment(models.Model):
 
     def __str__(self):
         return self.full_name
+
+    def save(self, *args, **kwargs):
+        base = slugify(self.full_name or "").strip("-")
+        if not base:
+            base = "doctor"
+        slug = base
+        if self.pk:
+            qs = Appointment.objects.exclude(pk=self.pk)
+        else:
+            qs = Appointment.objects.all()
+        if qs.filter(slug=slug).exists():
+            slug = f"{base}-{uuid.uuid4().hex[:8]}"
+        self.slug = slug
+        return super().save(*args, **kwargs)
 
     # def get_absolute_url(self):
     # return reverse('appointment:delete-appointment', kwargs={'pk': self.pk})

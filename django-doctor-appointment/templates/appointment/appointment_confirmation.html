@@ -102,7 +102,7 @@
           <a href="{% url 'appointment:home' %}" class="btn-appt-back">
             <i class="fa fa-arrow-left"></i> Back to Home
           </a>
-          <a href="{% url 'appointment:take-appointment-pdf' booking.pk %}" class="btn-appt-submit">
+          <a href="{% url 'appointment:take-appointment-pdf' booking.booking_id %}" class="btn-appt-submit">
             <i class="fa fa-download"></i> Download Confirmation PDF
           </a>
         </div>

@@ -504,7 +504,7 @@ html, body { overflow-x: hidden !important; max-width: 100vw; }
 
           <!-- Role-based CTA -->
           {% if request.user.is_authenticated and request.user.role == 'patient' %}
-            <a href="{% url 'appointment:take-appointment' apt.id %}" class="dc-appt-btn">
+            <a href="{% url 'appointment:take-appointment' apt.uuid %}" class="dc-appt-btn">
               <i class="fa fa-calendar-check-o"></i> Book Appointment
             </a>
 

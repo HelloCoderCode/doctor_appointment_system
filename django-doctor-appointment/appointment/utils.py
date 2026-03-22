@@ -11,6 +11,35 @@ def _sanitize(text):
         return ""
 
 
+def send_booking_email(booking):
+    try:
+        from django.conf import settings
+        from django.core.mail import EmailMultiAlternatives
+        from django.template.loader import render_to_string
+    except Exception:
+        return
+
+    if not getattr(booking, "email", None):
+        return
+
+    context = {
+        "booking": booking,
+    }
+    subject = f"Appointment Confirmed - {booking.booking_id}"
+    from_email = getattr(settings, "DEFAULT_FROM_EMAIL", None) or settings.EMAIL_HOST_USER
+    to = [booking.email]
+
+    text_body = render_to_string("appointment/emails/booking_confirmation.txt", context)
+    html_body = render_to_string("appointment/emails/booking_confirmation.html", context)
+
+    msg = EmailMultiAlternatives(subject, text_body, from_email, to)
+    msg.attach_alternative(html_body, "text/html")
+    try:
+        msg.send(fail_silently=True)
+    except Exception:
+        pass
+
+
 def generate_confirmation_pdf(booking):
     # Minimal PDF generator with a few text lines (ASCII-safe).
     lines = [

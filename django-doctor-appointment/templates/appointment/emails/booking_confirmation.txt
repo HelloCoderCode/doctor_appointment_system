@@ -1,0 +1,16 @@
+Appointment Confirmed
+
+Hello {{ booking.full_name }},
+
+Your appointment has been confirmed.
+
+Booking ID: {{ booking.booking_id }}
+Doctor: Dr. {{ booking.appointment.full_name }}{% if booking.appointment.department %} ({{ booking.appointment.department }}){% endif %}
+Date: {{ booking.appointment_date }}
+Token: #{{ booking.token_number }}
+Estimated Time: {{ booking.estimated_start_time|date:"g:i A" }}
+
+Please bring this confirmation on your visit.
+
+Thanks,
+MediCare Plus

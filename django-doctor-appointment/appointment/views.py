@@ -12,7 +12,7 @@ from django.views.generic.edit import DeleteView, UpdateView
 from accounts.forms import PatientProfileUpdateForm, DoctorProfileUpdateForm
 from .forms import CreateAppointmentForm, TakeAppointmentForm
 from .models import Appointment, TakeAppointment, DEFAULT_DEPARTMENTS
-from .utils import generate_confirmation_pdf
+from .utils import generate_confirmation_pdf, send_booking_email
 
 """
 For Patient Profile
@@ -80,10 +80,27 @@ class TakeAppointmentView(CreateView):
 
     def form_valid(self, form):
         form.instance.user = self.request.user
-        return super(TakeAppointmentView, self).form_valid(form)
+        response = super(TakeAppointmentView, self).form_valid(form)
+        send_booking_email(self.object)
+        return response
+
+    def get_initial(self):
+        initial = super().get_initial()
+        uuid_value = self.kwargs.get('uuid')
+        if uuid_value:
+            appointment = get_object_or_404(Appointment, uuid=uuid_value)
+            initial['appointment'] = appointment
+        return initial
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        uuid_value = self.kwargs.get('uuid')
+        if uuid_value:
+            context['selected_appointment'] = get_object_or_404(Appointment, uuid=uuid_value)
+        return context
 
     def get_success_url(self):
-        return reverse_lazy('appointment:take-appointment-confirm', kwargs={'pk': self.object.pk})
+        return reverse_lazy('appointment:take-appointment-confirm', kwargs={'booking_id': self.object.booking_id})
 
     def post(self, request, *args, **kwargs):
         self.object = None
@@ -258,6 +275,14 @@ class TakeAppointmentConfirmView(DetailView):
     def get_queryset(self):
         return self.model.objects.filter(user_id=self.request.user.id)
 
+    def get_object(self, queryset=None):
+        booking_id = self.kwargs.get('booking_id')
+        return get_object_or_404(
+            TakeAppointment,
+            booking_id=booking_id,
+            user_id=self.request.user.id
+        )
+
 
 class TakeAppointmentPdfView(View):
     @method_decorator(login_required(login_url=reverse_lazy('accounts:login')))
@@ -266,7 +291,11 @@ class TakeAppointmentPdfView(View):
         return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        booking = get_object_or_404(TakeAppointment, pk=kwargs.get('pk'), user_id=request.user.id)
+        booking = get_object_or_404(
+            TakeAppointment,
+            booking_id=kwargs.get('booking_id'),
+            user_id=request.user.id
+        )
         pdf_bytes = generate_confirmation_pdf(booking)
         response = HttpResponse(pdf_bytes, content_type='application/pdf')
         filename = f"appointment_{booking.booking_id}.pdf"

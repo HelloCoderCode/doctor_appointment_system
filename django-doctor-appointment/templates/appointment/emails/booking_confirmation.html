@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Appointment Confirmed</title>
+  </head>
+  <body style="margin:0; padding:0; background:#f4f9f8; font-family: Arial, sans-serif;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f9f8; padding:24px 0;">
+      <tr>
+        <td align="center">
+          <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="background:#ffffff; border:1px solid #d9eaea; border-radius:12px; overflow:hidden;">
+            <tr>
+              <td style="background:#0b6e6e; color:#ffffff; padding:18px 24px; font-size:18px; font-weight:700;">
+                Appointment Confirmed
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:20px 24px; color:#0f1f1f; font-size:14px; line-height:1.6;">
+                <p style="margin:0 0 12px;">Hello {{ booking.full_name }},</p>
+                <p style="margin:0 0 16px;">Your appointment has been confirmed.</p>
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+                  <tr>
+                    <td style="padding:8px 0; color:#6b8585; width:140px;">Booking ID</td>
+                    <td style="padding:8px 0; font-weight:700;">{{ booking.booking_id }}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:8px 0; color:#6b8585;">Doctor</td>
+                    <td style="padding:8px 0; font-weight:700;">
+                      Dr. {{ booking.appointment.full_name }}{% if booking.appointment.department %} ({{ booking.appointment.department }}){% endif %}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding:8px 0; color:#6b8585;">Date</td>
+                    <td style="padding:8px 0; font-weight:700;">{{ booking.appointment_date }}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:8px 0; color:#6b8585;">Token</td>
+                    <td style="padding:8px 0; font-weight:700;">#{{ booking.token_number }}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:8px 0; color:#6b8585;">Estimated Time</td>
+                    <td style="padding:8px 0; font-weight:700;">{{ booking.estimated_start_time|date:"g:i A" }}</td>
+                  </tr>
+                </table>
+                <p style="margin:16px 0 0;">Please bring this confirmation on your visit.</p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:14px 24px; background:#f4f9f8; color:#6b8585; font-size:12px;">
+                MediCare Plus
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>
