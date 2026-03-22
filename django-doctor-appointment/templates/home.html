@@ -497,16 +497,9 @@ img { display: block; max-width: 100%; }
                   <label><i class="fa fa-stethoscope"></i>&nbsp; Speciality</label>
                   <select name="department">
                     <option value="" disabled selected>Select Speciality</option>
-                    <option>Cardiology</option>
-                    <option>Dentistry</option>
-                    <option>ENT Specialists</option>
-                    <option>Orthopaedics</option>
-                    <option>Neurology</option>
-                    <option>Pathology &amp; Blood Tests</option>
-                    <option>Ophthalmology</option>
-                    <option>Physiotherapy</option>
-                    <option>Gynaecology</option>
-                    <option>Dermatology</option>
+                    {% for dept in departments %}
+                      <option value="{{ dept }}">{{ dept }}</option>
+                    {% endfor %}
                   </select>
                 </div>
                 <button type="submit" class="search-btn">

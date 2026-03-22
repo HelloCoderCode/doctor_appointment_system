@@ -431,7 +431,7 @@
         <input type="text"
                id="plSearch"
                class="pl-search-input"
-               placeholder="Search by name, phone or message…"
+               placeholder="Search by name, phone, message, or booking ID…"
                oninput="filterPatients(this.value)">
       </div>
     </div>
@@ -448,6 +448,8 @@
               <tr>
                 <th>#</th>
                 <th>Patient</th>
+                <th>Doctor</th>
+                <th>Booking ID</th>
                 <th>Phone</th>
                 <th>Message</th>
                 <th>Date</th>
@@ -460,7 +462,7 @@
             </thead>
             <tbody>
               {% for patient in patients %}
-              <tr data-search="{{ patient.full_name|lower }} {{ patient.phone_number }} {{ patient.message|lower }}"
+              <tr data-search="{{ patient.full_name|lower }} {{ patient.phone_number }} {{ patient.message|lower }} {{ patient.booking_id|lower }} {{ patient.appointment.full_name|lower }}"
                   data-status="{{ patient.status }}">
                 <td style="color:var(--muted);font-size:13px;">{{ forloop.counter }}</td>
                 <td>
@@ -468,8 +470,20 @@
                     <div class="pl-avatar">{{ patient.full_name|first }}</div>
                     <div>
                       <div class="pl-patient-name">{{ patient.full_name }}</div>
-                      <div class="pl-patient-id">Patient #{{ forloop.counter }}</div>
+                      <div class="pl-patient-id">Booking ID: {{ patient.booking_id }}</div>
                     </div>
+                  </div>
+                </td>
+                <td>
+                  <div class="pl-date">
+                    <i class="fa fa-user-md"></i>
+                    Dr. {{ patient.appointment.full_name }}
+                  </div>
+                </td>
+                <td>
+                  <div class="pl-date">
+                    <i class="fa fa-id-badge"></i>
+                    {{ patient.booking_id }}
                   </div>
                 </td>
                 <td>
@@ -548,16 +562,24 @@
         <div class="pl-mobile-cards" id="plMobileCards">
           {% for patient in patients %}
           <div class="pl-mobile-card"
-               data-search="{{ patient.full_name|lower }} {{ patient.phone_number }} {{ patient.message|lower }}"
+               data-search="{{ patient.full_name|lower }} {{ patient.phone_number|lower }} {{ patient.message|lower }} {{ patient.booking_id|lower }} {{ patient.appointment.full_name|lower }}"
                data-status="{{ patient.status }}">
             <div class="pl-mobile-card-head">
               <div class="pl-mobile-avatar">{{ patient.full_name|first }}</div>
               <div>
                 <div class="pl-mobile-name">{{ patient.full_name }}</div>
-                <div class="pl-mobile-id">Patient #{{ forloop.counter }}</div>
+                <div class="pl-mobile-id">Booking ID: {{ patient.booking_id }}</div>
               </div>
             </div>
             <div class="pl-mobile-meta">
+              <div class="pl-mobile-meta-row">
+                <i class="fa fa-id-badge"></i>
+                {{ patient.booking_id }}
+              </div>
+              <div class="pl-mobile-meta-row">
+                <i class="fa fa-user-md"></i>
+                Dr. {{ patient.appointment.full_name }}
+              </div>
               <div class="pl-mobile-meta-row">
                 <i class="fa fa-phone"></i>
                 {{ patient.phone_number }}

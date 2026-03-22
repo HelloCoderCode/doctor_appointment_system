@@ -4,7 +4,7 @@ from django.utils import timezone
 from accounts.models import User
 import uuid
 
-department = (
+DEFAULT_DEPARTMENTS = (
     ('Dentistry', "Dentistry"),
     ('Cardiology', "Cardiology"),
     ('ENT Specialists', "ENT Specialists"),
@@ -14,6 +14,13 @@ department = (
     ('Eye Care', 'Eye Care'),
     ('Physical Therapy', 'Physical Therapy'),
 )
+
+def _default_appt_date():
+    return timezone.localdate()
+
+
+def _default_appt_time():
+    return timezone.localtime().time()
 
 
 class Appointment(models.Model):
@@ -27,6 +34,7 @@ class Appointment(models.Model):
     institute_name = models.CharField(max_length=100)
     hospital_name = models.CharField(max_length=100)
     department = models.CharField(max_length=100)
+    avg_minutes_per_patient = models.PositiveSmallIntegerField(default=15)
     created_at = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
@@ -48,8 +56,15 @@ class TakeAppointment(models.Model):
     )
     status = models.CharField(max_length=12, choices=STATUS_CHOICES, default='applied')
     full_name = models.CharField(max_length=100)
+    email = models.EmailField(max_length=254)
     message = models.TextField()
     phone_number = models.CharField(max_length=120)
+    appointment_date = models.DateField(default=_default_appt_date)
+    appointment_time = models.TimeField(default=_default_appt_time)
+    appointment_duration_minutes = models.PositiveSmallIntegerField(default=15)
+    appointment_end_time = models.TimeField(default=_default_appt_time)
+    token_number = models.PositiveIntegerField(default=0)
+    estimated_start_time = models.DateTimeField(default=timezone.now)
     date = models.DateTimeField(default=timezone.now)
 
     def __str__(self):

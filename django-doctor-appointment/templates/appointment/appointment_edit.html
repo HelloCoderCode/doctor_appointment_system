@@ -231,6 +231,7 @@
   display: block; font-size: 11.5px;
   color: var(--muted); margin-top: 5px; line-height: 1.5;
 }
+.appt-form p.appt-hidden { display: none; }
 
 /* ── SECTION DIVIDERS ─────────────────────────────────── */
 .appt-divider {
@@ -429,4 +430,75 @@
     </div>
   </div>
 </div>
+{% endblock %}
+
+
+{% block javascripts %}
+<script>
+function markRequiredLabels(formEl) {
+  if (!formEl) return;
+  var fields = formEl.querySelectorAll('input, select, textarea');
+  fields.forEach(function(field) {
+    if (!field.required) return;
+    var id = field.getAttribute('id');
+    if (!id) return;
+    var label = formEl.querySelector('label[for="' + id + '"]');
+    if (!label) return;
+    if (label.querySelector('abbr')) return;
+    var abbr = document.createElement('abbr');
+    abbr.setAttribute('title', 'required');
+    abbr.textContent = '*';
+    label.appendChild(abbr);
+  });
+}
+
+function markExplicitRequiredLabels(formEl, ids) {
+  if (!formEl) return;
+  ids.forEach(function(id) {
+    var label = formEl.querySelector('label[for="' + id + '"]');
+    if (!label) return;
+    if (label.querySelector('abbr')) return;
+    var abbr = document.createElement('abbr');
+    abbr.setAttribute('title', 'required');
+    abbr.textContent = '*';
+    label.appendChild(abbr);
+  });
+}
+
+function initDepartmentOtherToggle() {
+  var deptSelect = document.getElementById('id_department');
+  var otherInput = document.getElementById('id_department_other');
+  if (!deptSelect || !otherInput) return;
+
+  var otherWrapper = otherInput.closest('p') || otherInput.parentElement;
+  var label = otherWrapper ? otherWrapper.querySelector('label') : null;
+  if (label && label.querySelector('abbr') === null) {
+    var abbr = document.createElement('abbr');
+    abbr.setAttribute('title', 'required');
+    abbr.textContent = '*';
+    label.appendChild(abbr);
+  }
+
+  function toggleOther() {
+    var isOther = deptSelect.value === 'Other';
+    if (otherWrapper) {
+      otherWrapper.classList.toggle('appt-hidden', !isOther);
+    }
+    otherInput.required = isOther;
+    if (!isOther) {
+      otherInput.value = '';
+    }
+  }
+
+  deptSelect.addEventListener('change', toggleOther);
+  toggleOther();
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  var formEl = document.querySelector('form.appt-form');
+  markRequiredLabels(formEl);
+  markExplicitRequiredLabels(formEl, ['id_department', 'id_image']);
+  initDepartmentOtherToggle();
+});
+</script>
 {% endblock %}

@@ -412,16 +412,9 @@ html, body { overflow-x: hidden !important; max-width: 100vw; }
           <label><i class="fa fa-stethoscope"></i>&nbsp; Speciality</label>
           <select id="department" name="department">
             <option value="" {% if not request.GET.department %}selected{% endif %} disabled>Select Speciality</option>
-            <option {% if request.GET.department == 'Cardiology' %}selected{% endif %}>Cardiology</option>
-            <option {% if request.GET.department == 'Dentistry' %}selected{% endif %}>Dentistry</option>
-            <option {% if request.GET.department == 'ENT Specialists' %}selected{% endif %}>ENT Specialists</option>
-            <option {% if request.GET.department == 'Orthopaedics' %}selected{% endif %}>Orthopaedics</option>
-            <option {% if request.GET.department == 'Neurology' %}selected{% endif %}>Neurology</option>
-            <option {% if request.GET.department == 'Pathology & Blood Tests' %}selected{% endif %}>Pathology &amp; Blood Tests</option>
-            <option {% if request.GET.department == 'Ophthalmology' %}selected{% endif %}>Ophthalmology</option>
-            <option {% if request.GET.department == 'Physiotherapy' %}selected{% endif %}>Physiotherapy</option>
-            <option {% if request.GET.department == 'Gynaecology' %}selected{% endif %}>Gynaecology</option>
-            <option {% if request.GET.department == 'Dermatology' %}selected{% endif %}>Dermatology</option>
+            {% for dept in departments %}
+              <option value="{{ dept }}" {% if request.GET.department == dept %}selected{% endif %}>{{ dept }}</option>
+            {% endfor %}
           </select>
         </div>
         <button type="submit" class="btn-search-submit">

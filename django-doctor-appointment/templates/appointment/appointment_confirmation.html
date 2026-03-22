@@ -77,7 +77,21 @@
             <div class="appt-info-item-icon"><i class="fa fa-clock-o"></i></div>
             <div class="appt-info-item-text">
               <span>Date</span>
-              <strong>{{ booking.date }}</strong>
+              <strong>{{ booking.appointment_date }}</strong>
+            </div>
+          </div>
+          <div class="appt-info-item">
+            <div class="appt-info-item-icon"><i class="fa fa-list-ol"></i></div>
+            <div class="appt-info-item-text">
+              <span>Token</span>
+              <strong>#{{ booking.token_number }}</strong>
+            </div>
+          </div>
+          <div class="appt-info-item">
+            <div class="appt-info-item-icon"><i class="fa fa-hourglass-half"></i></div>
+            <div class="appt-info-item-text">
+              <span>Estimated Time</span>
+              <strong>{{ booking.estimated_start_time|date:"g:i A" }}</strong>
             </div>
           </div>
         </div>

@@ -11,13 +11,28 @@ from django.views.generic import TemplateView, UpdateView, CreateView, ListView,
 from django.views.generic.edit import DeleteView, UpdateView
 from accounts.forms import PatientProfileUpdateForm, DoctorProfileUpdateForm
 from .forms import CreateAppointmentForm, TakeAppointmentForm
-from .models import Appointment, TakeAppointment
+from .models import Appointment, TakeAppointment, DEFAULT_DEPARTMENTS
 from .utils import generate_confirmation_pdf
 
 """
 For Patient Profile
     
 """
+
+
+def _get_department_list():
+    defaults = [d[0] for d in DEFAULT_DEPARTMENTS]
+    extra_values = (
+        Appointment.objects.exclude(department__isnull=True)
+        .exclude(department__exact='')
+        .values_list('department', flat=True)
+        .distinct()
+    )
+    extras = sorted(
+        {d.strip() for d in extra_values if d and d.strip() and d.strip() not in defaults},
+        key=str.lower,
+    )
+    return defaults + extras
 
 
 class EditPatientProfileView(UpdateView):
@@ -274,6 +289,11 @@ class HomePageView(ListView):
     def get_queryset(self):
         return self.model.objects.all().order_by('-id')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['departments'] = _get_department_list()
+        return context
+
 
 class ServiceView(TemplateView):
     template_name = 'appointment/service.html'
@@ -286,5 +306,17 @@ class SearchView(ListView):
     context_object_name = 'appointment'
 
     def get_queryset(self):
-        return self.model.objects.filter(location__contains=self.request.GET['location'],
-                                         department__contains=self.request.GET['department'])
+        location = (self.request.GET.get('location') or '').strip()
+        department = (self.request.GET.get('department') or '').strip()
+
+        queryset = self.model.objects.all()
+        if location:
+            queryset = queryset.filter(location__icontains=location)
+        if department:
+            queryset = queryset.filter(department__icontains=department)
+        return queryset.order_by('-id')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['departments'] = _get_department_list()
+        return context

@@ -21,7 +21,9 @@ def generate_confirmation_pdf(booking):
         f"Phone: {_sanitize(booking.phone_number)}",
         f"Doctor: {_sanitize(booking.appointment.full_name)}",
         f"Department: {_sanitize(booking.appointment.department)}",
-        f"Date: {_sanitize(booking.date)}",
+        f"Date: {_sanitize(booking.appointment_date)}",
+        f"Token: {_sanitize(booking.token_number)}",
+        f"Estimated Time: {_sanitize(booking.estimated_start_time)}",
         "",
         "Please bring this confirmation on your visit.",
     ]
