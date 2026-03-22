@@ -620,7 +620,7 @@ img { display: block; max-width: 100%; }
           <div class="dc-meta">
             <span>
               <i class="fa fa-clock-o"></i>
-              {{ apt.start_time }} &ndash; {{ apt.end_time }}
+              {{ apt.start_time|time:"g:i A" }} &ndash; {{ apt.end_time|time:"g:i A" }}
             </span>
             <span>
               <i class="fa fa-hospital-o"></i>

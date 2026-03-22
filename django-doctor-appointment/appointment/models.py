@@ -23,6 +23,13 @@ def _default_appt_date():
 def _default_appt_time():
     return timezone.localtime().time()
 
+def _default_start_time():
+    return timezone.datetime(2000, 1, 1, 9, 0).time()
+
+
+def _default_end_time():
+    return timezone.datetime(2000, 1, 1, 17, 0).time()
+
 
 class Appointment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -31,8 +38,8 @@ class Appointment(models.Model):
     slug = models.SlugField(max_length=130, unique=True, blank=True)
     image = models.ImageField(null=True, blank=True)
     location = models.CharField(max_length=100)
-    start_time = models.CharField(max_length=10)
-    end_time = models.CharField(max_length=10)
+    start_time = models.TimeField(default=_default_start_time)
+    end_time = models.TimeField(default=_default_end_time)
     qualification_name = models.CharField(max_length=100)
     institute_name = models.CharField(max_length=100)
     hospital_name = models.CharField(max_length=100)

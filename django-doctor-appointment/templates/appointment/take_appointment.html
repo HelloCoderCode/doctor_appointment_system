@@ -480,6 +480,22 @@ html, body { overflow-x: hidden !important; max-width: 100vw; }
       selectedBox.classList.add('appt-hidden');
     });
   }
+
+  var formEl = document.querySelector('.appt-card-body form');
+  if (formEl) {
+    var fields = formEl.querySelectorAll('input, select, textarea');
+    fields.forEach(function (field) {
+      if (!field.required) return;
+      var id = field.getAttribute('id');
+      if (!id) return;
+      var label = formEl.querySelector('label[for="' + id + '"]');
+      if (!label || label.querySelector('abbr')) return;
+      var abbr = document.createElement('abbr');
+      abbr.setAttribute('title', 'required');
+      abbr.textContent = '*';
+      label.appendChild(abbr);
+    });
+  }
 })();
 </script>
 {% endblock %}

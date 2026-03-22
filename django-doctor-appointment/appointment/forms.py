@@ -81,17 +81,25 @@ class CreateAppointmentForm(forms.ModelForm):
 
         self.fields['start_time'].widget.attrs.update(
             {
-                'placeholder': 'Ex : 9 AM',
+                'type': 'time',
+                'placeholder': '09:00',
             }
         )
         self.fields['end_time'].widget.attrs.update(
             {
-                'placeholder': 'Ex: 5 PM',
+                'type': 'time',
+                'placeholder': '17:00',
             }
+        )
+        self.fields['start_time'].widget = forms.TimeInput(
+            attrs=self.fields['start_time'].widget.attrs
+        )
+        self.fields['end_time'].widget = forms.TimeInput(
+            attrs=self.fields['end_time'].widget.attrs
         )
         self.fields['location'].widget.attrs.update(
             {
-                'placeholder': 'Ex : Uttara, Dhaka',
+                'placeholder': 'Ex : New Delhi, India',
             }
         )
 
@@ -166,6 +174,13 @@ class TakeAppointmentForm(forms.ModelForm):
         self.fields['message'].label = "Message"
         self.fields['appointment_date'].label = "Appointment Date"
 
+        self.fields['appointment'].required = True
+        self.fields['appointment_date'].required = True
+        self.fields['full_name'].required = True
+        self.fields['email'].required = True
+        self.fields['phone_number'].required = True
+        self.fields['message'].required = True
+
         self.fields.pop('appointment_time', None)
         self.fields.pop('appointment_duration_minutes', None)
         self.fields.pop('appointment_end_time', None)
@@ -216,28 +231,65 @@ class TakeAppointmentForm(forms.ModelForm):
                 'type': 'date',
             }
         )
+        self.fields['appointment_date'].widget = forms.DateInput(
+            attrs=self.fields['appointment_date'].widget.attrs
+        )
+        try:
+            today = timezone.localdate()
+            next_day = today + timedelta(days=1)
+            self.fields['appointment_date'].widget.attrs['min'] = next_day.isoformat()
+            if not self.initial.get('appointment_date'):
+                self.initial['appointment_date'] = next_day
+        except Exception:
+            pass
 
     class Meta:
         model = TakeAppointment
         fields = ['appointment', 'appointment_date', 'full_name', 'email', 'phone_number', 'message']
 
-    def _parse_start_time(self, raw_time):
+    def _parse_time(self, raw_time, default_time):
         if isinstance(raw_time, time):
             return raw_time
         if not raw_time:
-            return time(9, 0)
+            return default_time
         candidates = ["%I %p", "%I:%M %p", "%H:%M", "%H:%M:%S"]
         for fmt in candidates:
             try:
                 return datetime.strptime(raw_time.strip(), fmt).time()
             except ValueError:
                 continue
-        return time(9, 0)
+        return default_time
 
     def clean(self):
         cleaned = super().clean()
         appointment = cleaned.get('appointment')
         appointment_date = cleaned.get('appointment_date')
+
+        if appointment and appointment_date:
+            start_time = self._parse_time(appointment.start_time, time(9, 0))
+            end_time = self._parse_time(appointment.end_time, time(17, 0))
+            avg_minutes = appointment.avg_minutes_per_patient or 15
+
+            start_dt = datetime.combine(appointment_date, start_time)
+            end_dt = datetime.combine(appointment_date, end_time)
+            if end_dt <= start_dt:
+                self.add_error('appointment_date', 'Doctor schedule is invalid for this day.')
+                return cleaned
+
+            total_minutes = int((end_dt - start_dt).total_seconds() // 60)
+            capacity = max(total_minutes // avg_minutes, 0)
+            if capacity <= 0:
+                self.add_error('appointment_date', 'Doctor schedule is full. Please choose another day.')
+                return cleaned
+
+            current_count = TakeAppointment.objects.filter(
+                appointment=appointment,
+                appointment_date=appointment_date,
+                status__in=['applied', 'completed'],
+            ).count()
+
+            if current_count >= capacity:
+                self.add_error('appointment_date', 'Appointments are full for this day. Please choose another day.')
 
         return cleaned
 
@@ -254,10 +306,16 @@ class TakeAppointmentForm(forms.ModelForm):
         appointment = booking.appointment
         appointment_date = booking.appointment_date
 
-        start_time = self._parse_start_time(appointment.start_time)
+        start_time = self._parse_time(appointment.start_time, time(9, 0))
+        end_time = self._parse_time(appointment.end_time, time(17, 0))
         avg_minutes = appointment.avg_minutes_per_patient or 15
 
         with transaction.atomic():
+            start_dt = datetime.combine(appointment_date, start_time)
+            end_dt = datetime.combine(appointment_date, end_time)
+            total_minutes = int((end_dt - start_dt).total_seconds() // 60)
+            capacity = max(total_minutes // avg_minutes, 0)
+
             last_token = (
                 TakeAppointment.objects.filter(
                     appointment=appointment,
@@ -267,7 +325,10 @@ class TakeAppointmentForm(forms.ModelForm):
                 .values_list('token_number', flat=True)
                 .first()
             )
-            booking.token_number = (last_token or 0) + 1
+            next_token = (last_token or 0) + 1
+            if capacity and next_token > capacity:
+                raise forms.ValidationError('Appointments are full for this day. Please choose another day.')
+            booking.token_number = next_token
 
             start_dt = datetime.combine(appointment_date, start_time)
             estimated_dt = start_dt + timedelta(minutes=avg_minutes * (booking.token_number - 1))

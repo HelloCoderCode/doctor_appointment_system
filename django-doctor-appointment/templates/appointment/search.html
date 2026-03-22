@@ -488,7 +488,7 @@ html, body { overflow-x: hidden !important; max-width: 100vw; }
           <div class="dc-meta">
             <div class="dc-meta-item">
               <i class="fa fa-clock-o"></i>
-              {{ apt.start_time }} – {{ apt.end_time }}
+              {{ apt.start_time|time:"g:i A" }} – {{ apt.end_time|time:"g:i A" }}
             </div>
             <div class="dc-meta-item">
               <i class="fa fa-hospital-o"></i>

@@ -291,7 +291,7 @@
             {% endif %}
             {% if object.start_time and object.end_time %}
             <span class="del-doctor-meta-item">
-              <i class="fa fa-clock-o"></i> {{ object.start_time }} – {{ object.end_time }}
+              <i class="fa fa-clock-o"></i> {{ object.start_time|time:"g:i A" }} – {{ object.end_time|time:"g:i A" }}
             </span>
             {% endif %}
           </div>

@@ -374,7 +374,7 @@
           <div class="appt-card-meta">
             <div class="appt-card-meta-item">
               <i class="fa fa-clock-o"></i>
-              {{ apt.start_time }} – {{ apt.end_time }}
+              {{ apt.start_time|time:"g:i A" }} – {{ apt.end_time|time:"g:i A" }}
             </div>
             <div class="appt-card-meta-item">
               <i class="fa fa-hospital-o"></i>
