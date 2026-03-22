@@ -2,3 +2,28 @@ env/
 __pycache__/
 *.pyc
 db.sqlite3
+
+# Python
+__pycache__/
+*.pyc
+
+# Virtual Env
+env/
+venv/
+
+# Database
+db.sqlite3
+
+# Environment variables
+.env
+
+# Static & Media
+media/
+staticfiles/
+
+# Logs
+*.log
+
+# IDE
+.vscode/
+.idea/
