@@ -14,8 +14,9 @@ A Django project for managing doctor availability, patient bookings, and tokenâ€
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/SoftwareTechnology-Hub/doctors_appointments_systems.git
-cd doctors_appointments_systems/django-doctor-appointment
+
+git clone https://github.com/HelloCoderCode/doctor_appointment_system.git
+cd doctors_appointments_system/django-doctor-appointment
 ```
 
 ### 2. Create Virtual Environment
