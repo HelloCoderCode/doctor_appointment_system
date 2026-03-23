@@ -99,7 +99,7 @@ class CreateAppointmentForm(forms.ModelForm):
         )
         self.fields['location'].widget.attrs.update(
             {
-                'placeholder': 'Ex : New Odisha, India',
+                'placeholder': 'Ex :Odisha, India',
             }
         )
 
